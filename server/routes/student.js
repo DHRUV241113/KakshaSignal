@@ -4,19 +4,21 @@ import { getDb } from '../db/schema.js';
 import { getAllNodes, getNode, getNodesByClass } from '../data/knowledgeGraph.js';
 import learningContent from '../data/learningContent.js';
 import { traceGap } from '../services/gapTracer.js';
+import { requireStudentOrTeacherAuth } from '../services/authService.js';
 
 const router = Router();
 
 // Get available topics for a student's class level (and prerequisite classes)
-router.get('/topics/:studentId', (req, res) => {
-  const { studentId } = req.params;
+// Protected: Requires student self-auth or authorized teacher auth
+router.get('/topics/:studentId', requireStudentOrTeacherAuth, (req, res) => {
+  const studentId = parseInt(req.params.studentId, 10);
   const db = getDb();
 
   const student = db.prepare(`
     SELECT s.*, c.class_level FROM students s
     JOIN classrooms c ON s.classroom_id = c.id
     WHERE s.id = ?
-  `).get(parseInt(studentId));
+  `).get(studentId);
 
   if (!student) {
     return res.status(404).json({ error: 'Student not found' });
@@ -28,7 +30,7 @@ router.get('/topics/:studentId', (req, res) => {
   // Get mastery status for each node
   const masteryRecords = db.prepare(
     'SELECT node_id, status, diagnostic_score, mastery_score FROM student_mastery WHERE student_id = ?'
-  ).all(parseInt(studentId));
+  ).all(studentId);
 
   const masteryMap = {};
   for (const rec of masteryRecords) {
@@ -47,10 +49,10 @@ router.get('/topics/:studentId', (req, res) => {
     grouped[topic.class].push(topic);
   }
 
-  res.json({ studentId: parseInt(studentId), classLevel: student.class_level, topicsByClass: grouped, allTopics: topics });
+  res.json({ studentId, classLevel: student.class_level, topicsByClass: grouped, allTopics: topics });
 });
 
-// Get learning content for a node
+// Get learning content for a node (Public pedagogical concept notes, formulas, properties)
 router.get('/learn/:nodeId', (req, res) => {
   const { nodeId } = req.params;
   const content = learningContent[nodeId];
@@ -64,9 +66,16 @@ router.get('/learn/:nodeId', (req, res) => {
 });
 
 // Get the gap trace for a student on a specific node
-router.get('/trace/:studentId/:nodeId', (req, res) => {
-  const { studentId, nodeId } = req.params;
-  const trace = traceGap(parseInt(studentId), nodeId);
+// Protected: Requires student self-auth or authorized teacher auth
+router.get('/trace/:studentId/:nodeId', requireStudentOrTeacherAuth, (req, res) => {
+  const studentId = parseInt(req.params.studentId, 10);
+  const { nodeId } = req.params;
+
+  if (!getNode(nodeId)) {
+    return res.status(404).json({ error: `Node '${nodeId}' not found in knowledge graph` });
+  }
+
+  const trace = traceGap(studentId, nodeId);
   if (trace.error) {
     return res.status(404).json(trace);
   }
@@ -74,26 +83,27 @@ router.get('/trace/:studentId/:nodeId', (req, res) => {
 });
 
 // Get student's learning path (recommended next steps)
-router.get('/path/:studentId', (req, res) => {
-  const { studentId } = req.params;
+// Protected: Requires student self-auth or authorized teacher auth
+router.get('/path/:studentId', requireStudentOrTeacherAuth, (req, res) => {
+  const studentId = parseInt(req.params.studentId, 10);
   const db = getDb();
 
   // Find nodes with gap_found status
   const gaps = db.prepare(
     "SELECT node_id FROM student_mastery WHERE student_id = ? AND status = 'gap_found'"
-  ).all(parseInt(studentId));
+  ).all(studentId);
 
   if (gaps.length === 0) {
     // Find nodes not started yet
     const allNodes = getAllNodes();
     const masteryRecords = db.prepare(
       'SELECT node_id FROM student_mastery WHERE student_id = ?'
-    ).all(parseInt(studentId));
+    ).all(studentId);
     const startedSet = new Set(masteryRecords.map(r => r.node_id));
 
     const student = db.prepare(`
       SELECT c.class_level FROM students s JOIN classrooms c ON s.classroom_id = c.id WHERE s.id = ?
-    `).get(parseInt(studentId));
+    `).get(studentId);
 
     const notStarted = allNodes
       .filter(n => !startedSet.has(n.id) && n.class <= (student?.class_level || 8))
@@ -114,7 +124,7 @@ router.get('/path/:studentId', (req, res) => {
     return classB - classA;
   });
   const targetGap = sortedGaps[0].node_id;
-  const trace = traceGap(parseInt(studentId), targetGap);
+  const trace = traceGap(studentId, targetGap);
 
   res.json({
     hasGaps: true,
@@ -124,25 +134,26 @@ router.get('/path/:studentId', (req, res) => {
 });
 
 // Get student progress overview
-router.get('/progress/:studentId', (req, res) => {
-  const { studentId } = req.params;
+// Protected: Requires student self-auth or authorized teacher auth
+router.get('/progress/:studentId', requireStudentOrTeacherAuth, (req, res) => {
+  const studentId = parseInt(req.params.studentId, 10);
   const db = getDb();
 
   const student = db.prepare(`
     SELECT s.*, c.class_level, c.name as classroom_name FROM students s
     JOIN classrooms c ON s.classroom_id = c.id
     WHERE s.id = ?
-  `).get(parseInt(studentId));
+  `).get(studentId);
 
   if (!student) return res.status(404).json({ error: 'Student not found' });
 
   const mastery = db.prepare(
     'SELECT * FROM student_mastery WHERE student_id = ?'
-  ).all(parseInt(studentId));
+  ).all(studentId);
 
   const recentActivity = db.prepare(
     'SELECT * FROM activity_log WHERE student_id = ? ORDER BY created_at DESC LIMIT 10'
-  ).all(parseInt(studentId));
+  ).all(studentId);
 
   const totalNodes = getAllNodes().filter(n => n.class <= student.class_level).length;
   const masteredCount = mastery.filter(m => m.status === 'mastered').length;

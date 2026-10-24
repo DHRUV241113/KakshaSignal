@@ -22,8 +22,9 @@ export default function TeacherDashboard() {
     if (!activeClassroom) return;
     setLoading(true);
     try {
+      const headers = user?.token ? { 'Authorization': `Bearer ${user.token}` } : {};
       const [overviewRes, graphRes] = await Promise.all([
-        fetch(`/api/teacher/class/${activeClassroom.id}/overview`),
+        fetch(`/api/teacher/class/${activeClassroom.id}/overview`, { headers }),
         fetch('/api/teacher/knowledge-graph')
       ]);
 
@@ -52,7 +53,8 @@ export default function TeacherDashboard() {
     setLoadingTrace(true);
 
     try {
-      const res = await fetch(`/api/student/trace/${student.id}/${node.id}`);
+      const headers = user?.token ? { 'Authorization': `Bearer ${user.token}` } : {};
+      const res = await fetch(`/api/student/trace/${student.id}/${node.id}`, { headers });
       const data = await res.json();
       setTraceData(data);
     } catch (err) {

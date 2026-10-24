@@ -16,10 +16,11 @@ export default function StudentDashboard() {
     if (!user || user.role !== 'student') return;
     setLoading(true);
     try {
+      const headers = user?.token ? { 'Authorization': `Bearer ${user.token}` } : {};
       const [topicsRes, pathRes, progressRes] = await Promise.all([
-        fetch(`/api/student/topics/${user.id}`),
-        fetch(`/api/student/path/${user.id}`),
-        fetch(`/api/student/progress/${user.id}`)
+        fetch(`/api/student/topics/${user.id}`, { headers }),
+        fetch(`/api/student/path/${user.id}`, { headers }),
+        fetch(`/api/student/progress/${user.id}`, { headers })
       ]);
 
       const [topics, path, progress] = await Promise.all([

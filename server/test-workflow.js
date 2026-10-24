@@ -104,11 +104,15 @@ try {
   const quiz = generateQuiz(rootNodeId, 'mastery');
   console.log(`Generated benchmark quiz: ${quiz.questions.length} questions`);
 
-  // Simulate Student passing with 100% (answering all with option 0)
-  const perfectAnswers = quiz.questions.map(q => ({
-    questionId: q.id,
-    selectedOption: 0
-  }));
+  // Simulate Student passing with 100% using bank's correct answers
+  const bankQuestions = (await import('./data/questions.js')).default[rootNodeId];
+  const perfectAnswers = quiz.questions.map(q => {
+    const bq = bankQuestions.find(item => item.id === q.id);
+    return {
+      questionId: q.id,
+      selectedOption: bq !== undefined ? bq.answer : 0
+    };
+  });
 
   const gradeResult = gradeQuiz(sneha.id, rootNodeId, 'mastery', perfectAnswers, 45);
   console.log(`Quiz Graded -> Score: ${gradeResult.percentage}%, Passed: ${gradeResult.passed}`);

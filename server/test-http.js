@@ -129,10 +129,12 @@ async function runHttpTests() {
       if (studentData.classroom.classLevel !== 8) throw new Error(`Expected classLevel 8`);
     });
 
-    // 4. Teacher class heatmap overview
+    // 4. Teacher class heatmap overview (Authenticated via teacher session token)
     await check('GET /api/teacher/class/:id/overview returns student matrix', async () => {
       const classId = teacherData.classrooms[0].id;
-      const res = await fetch(`${baseUrl}/api/teacher/class/${classId}/overview`);
+      const res = await fetch(`${baseUrl}/api/teacher/class/${classId}/overview`, {
+        headers: { Authorization: `Bearer ${teacherData.token}` }
+      });
       if (res.status !== 200) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (!Array.isArray(data.students) || data.students.length === 0) throw new Error('Empty students array');
@@ -148,18 +150,22 @@ async function runHttpTests() {
       if (data.edges.length !== 37) throw new Error(`Expected 37 edges, got ${data.edges.length}`);
     });
 
-    // 6. Student topics endpoint
+    // 6. Student topics endpoint (Authenticated via student session token)
     await check('GET /api/student/topics/:studentId returns curriculum topics', async () => {
-      const res = await fetch(`${baseUrl}/api/student/topics/${studentData.student.id}`);
+      const res = await fetch(`${baseUrl}/api/student/topics/${studentData.student.id}`, {
+        headers: { Authorization: `Bearer ${studentData.token}` }
+      });
       if (res.status !== 200) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (!Array.isArray(data.allTopics) || data.allTopics.length === 0) throw new Error('Missing allTopics');
       if (!data.topicsByClass) throw new Error('Missing topicsByClass');
     });
 
-    // 7. Student gap trace endpoint
+    // 7. Student gap trace endpoint (Authenticated via student session token)
     await check('GET /api/student/trace/:studentId/:nodeId traces root gap to Fractions', async () => {
-      const res = await fetch(`${baseUrl}/api/student/trace/${studentData.student.id}/8_rational_numbers_adv`);
+      const res = await fetch(`${baseUrl}/api/student/trace/${studentData.student.id}/8_rational_numbers_adv`, {
+        headers: { Authorization: `Bearer ${studentData.token}` }
+      });
       if (res.status !== 200) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (!Array.isArray(data.rootGaps) || data.rootGaps.length === 0) throw new Error('No root gaps returned');

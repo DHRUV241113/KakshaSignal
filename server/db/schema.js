@@ -9,6 +9,7 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const DB_FILE = join(__dirname, 'ccp-data.json');
+const BACKUP_FILE = join(__dirname, 'ccp-data.backup.json');
 
 class MemoryDatabase {
   constructor() {
@@ -34,15 +35,38 @@ class MemoryDatabase {
   }
 
   load() {
+    let loaded = false;
+    // Primary: attempt reading DB_FILE
     try {
       if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         const data = JSON.parse(raw);
         if (data.tables) this.tables = data.tables;
         if (data.autoIncrement) this.autoIncrement = data.autoIncrement;
+        loaded = true;
+        // Create/update backup snapshot on clean load
+        try {
+          fs.writeFileSync(BACKUP_FILE, raw, 'utf-8');
+        } catch (_) {}
       }
     } catch (err) {
-      console.warn('Initializing fresh DB store.');
+      console.warn('DB file corrupt or unreadable, checking backup file...', err.message);
+    }
+
+    // Fallback: attempt recovering from BACKUP_FILE
+    if (!loaded && fs.existsSync(BACKUP_FILE)) {
+      try {
+        const rawBackup = fs.readFileSync(BACKUP_FILE, 'utf-8');
+        const data = JSON.parse(rawBackup);
+        if (data.tables) this.tables = data.tables;
+        if (data.autoIncrement) this.autoIncrement = data.autoIncrement;
+        loaded = true;
+        console.info('Successfully recovered datastore from automated backup snapshot.');
+        // Restore to DB_FILE
+        this.save();
+      } catch (backupErr) {
+        console.warn('Backup file also unreadable, starting fresh DB store.');
+      }
     }
   }
 
@@ -52,7 +76,24 @@ class MemoryDatabase {
         tables: this.tables,
         autoIncrement: this.autoIncrement
       };
-      fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+      const jsonPayload = JSON.stringify(data, null, 2);
+      
+      // Atomic write: write to a unique temporary file first, then replace DB_FILE
+      const tmpFile = join(__dirname, `ccp-data.tmp.${Date.now()}.${Math.random().toString(36).slice(2, 7)}.json`);
+      fs.writeFileSync(tmpFile, jsonPayload, 'utf-8');
+      
+      try {
+        fs.renameSync(tmpFile, DB_FILE);
+      } catch (renameErr) {
+        // Fallback for Windows file locks
+        fs.copyFileSync(tmpFile, DB_FILE);
+        try { fs.unlinkSync(tmpFile); } catch (_) {}
+      }
+
+      // Sync backup copy
+      try {
+        fs.writeFileSync(BACKUP_FILE, jsonPayload, 'utf-8');
+      } catch (_) {}
     } catch (err) {
       console.error('Failed to persist DB:', err);
     }
@@ -101,8 +142,11 @@ class MemoryDatabase {
         // Classrooms insert
         if (/INSERT INTO classrooms/i.test(cleanSql)) {
           const [teacher_id, name, class_level, join_code] = params;
+          if (!name || isNaN(Number(teacher_id)) || Number(teacher_id) <= 0) {
+            throw new Error('Invalid classroom data: valid name and positive teacher_id required');
+          }
           const id = db.autoIncrement.classrooms++;
-          db.tables.classrooms.push({ id, teacher_id: Number(teacher_id), name, class_level: Number(class_level), join_code, created_at: new Date().toISOString() });
+          db.tables.classrooms.push({ id, teacher_id: Number(teacher_id), name: String(name).trim(), class_level: Number(class_level) || 8, join_code: join_code || '', created_at: new Date().toISOString() });
           db.save();
           return { lastInsertRowid: id, changes: 1 };
         }
@@ -111,14 +155,20 @@ class MemoryDatabase {
         if (/INSERT INTO students/i.test(cleanSql)) {
           if (params.length === 3) {
             const [name, classroom_id, roll_number] = params;
+            if (!name || isNaN(Number(classroom_id)) || Number(classroom_id) <= 0) {
+              throw new Error('Invalid student data: non-empty name and positive classroom_id required');
+            }
             const id = db.autoIncrement.students++;
-            db.tables.students.push({ id, name, classroom_id: Number(classroom_id), roll_number, created_at: new Date().toISOString() });
+            db.tables.students.push({ id, name: String(name).trim(), classroom_id: Number(classroom_id), roll_number: roll_number || '', created_at: new Date().toISOString() });
             db.save();
             return { lastInsertRowid: id, changes: 1 };
           } else {
             const [name, classroom_id] = params;
+            if (!name || isNaN(Number(classroom_id)) || Number(classroom_id) <= 0) {
+              throw new Error('Invalid student data: non-empty name and positive classroom_id required');
+            }
             const id = db.autoIncrement.students++;
-            db.tables.students.push({ id, name, classroom_id: Number(classroom_id), roll_number: '', created_at: new Date().toISOString() });
+            db.tables.students.push({ id, name: String(name).trim(), classroom_id: Number(classroom_id), roll_number: '', created_at: new Date().toISOString() });
             db.save();
             return { lastInsertRowid: id, changes: 1 };
           }
@@ -127,6 +177,9 @@ class MemoryDatabase {
         // Student mastery insert or ignore
         if (/INSERT OR IGNORE INTO student_mastery/i.test(cleanSql)) {
           const [student_id, node_id, status] = params;
+          if (isNaN(Number(student_id)) || Number(student_id) <= 0 || !node_id) {
+            throw new Error('Invalid student_mastery data: positive student_id and node_id required');
+          }
           const exists = db.tables.student_mastery.find(m => m.student_id === Number(student_id) && m.node_id === node_id);
           if (!exists) {
             const id = db.autoIncrement.student_mastery++;
@@ -223,6 +276,9 @@ class MemoryDatabase {
         // Quiz attempts insert
         if (/INSERT INTO quiz_attempts/i.test(cleanSql)) {
           const [student_id, node_id, quiz_type, questions_json, answers_json, score, total_questions, correct_answers, time_taken_seconds] = params;
+          if (isNaN(Number(student_id)) || Number(student_id) <= 0 || !node_id || typeof score !== 'number' || isNaN(score) || score < 0 || score > 1) {
+            throw new Error('Invalid quiz_attempts data: positive student_id, non-empty node_id, and 0<=score<=1 required');
+          }
           const id = db.autoIncrement.quiz_attempts++;
           db.tables.quiz_attempts.push({
             id,
@@ -282,6 +338,12 @@ class MemoryDatabase {
         if (/SELECT \* FROM teachers WHERE code =/i.test(cleanSql)) {
           const [code] = params;
           return db.tables.teachers.find(t => t.code === code) || null;
+        }
+
+        // Teacher by id
+        if (/SELECT .* FROM teachers WHERE id =/i.test(cleanSql)) {
+          const [id] = params;
+          return db.tables.teachers.find(t => t.id === Number(id)) || null;
         }
 
         // Classroom by join code

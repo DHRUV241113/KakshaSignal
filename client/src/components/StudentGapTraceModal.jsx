@@ -27,9 +27,11 @@ export default function StudentGapTraceModal({ student, gapNode, traceData, onCl
     try {
       const res = await fetch('/api/teacher/assign', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token || ''}`
+        },
         body: JSON.stringify({
-          teacherId: user.id,
           studentId: student.id,
           nodeId: targetNode,
           action: selectedAction,

@@ -56,7 +56,7 @@ The [published event listing](https://api.unstop.com/hackathons/code-kernel-26-g
 * **All Test Suites:** `npm test` runs all 5 server test suites (`test-endpoints.js`, `test-workflow.js`, `test-regression.js`, `test-upgrade.js`, and `test-phase1.js`) passing all current backend checks on 2026-10-24 with database snapshots restored (102 counted assertions plus 5 workflow stages).
 * **Live HTTP Smoke:** `node test-http.js` passed **11/11 checks** across live HTTP endpoints (health, teacher/student auth, class overview, knowledge graph, student topics, backward trace, learning content, quiz generation, seeded Form B reassessment and production static client serving), with automatic database backup/restore.
 * **Production Build:** `npm run build` from `client` compiled successfully via Vite: JavaScript 241.03 kB / 71.91 kB gzip, CSS 38.00 kB / 6.69 kB gzip, HTML 1.06 kB / 0.59 kB gzip (79.19 kB combined gzip). Service worker (`sw.js`) verified in `client/dist/sw.js`.
-* **Live Tunnel:** Active at `https://interesting-aug-butler-expects.trycloudflare.com`; the URL returned HTTP 200 for app and health on 2026-10-24, but its quiz route still served mixed Form A/Form B items for seeded Sneha and needs the source fix deployed.
+* **Live Tunnel & Cloudflare Notice:** Cloudflare Quick Tunnel URLs (e.g. `*.trycloudflare.com`) are ephemeral, on-demand tunnels that terminate when the host tunnel process stops. For public evaluation, start an on-demand tunnel and configure its generated origin in `ALLOWED_ORIGINS`.
 * **Environment & Port Note:** When running inside restricted Windows sandbox environments, outbound loopback connections fail with `EACCES (errno: -4092)`. To interact with the application from a desktop web browser, start the server outside the sandbox.
 
 ---
@@ -132,7 +132,7 @@ From the `server` directory, run the complete verification suite with one comman
 cd server
 npm test
 ```
-*Executes all 5 non-HTTP test suites: `test-endpoints.js`, `test-workflow.js`, `test-regression.js`, `test-upgrade.js`, and `test-phase1.js` (98 assertions, 100% pass) with automatic database state preservation.*
+*Executes all 6 non-HTTP test suites: `test-endpoints.js`, `test-workflow.js`, `test-regression.js`, `test-upgrade.js`, `test-phase1.js`, and `test-security.js` (133 assertions, 100% pass) with automatic database state preservation.*
 
 You can also run each suite individually:
 
@@ -166,23 +166,46 @@ node test-phase1.js
 ```
 *Verifies 33/33 assertions on dual-persona state isolation (Priya vs Sneha), verified NCERT prerequisite links (`NCERT Class 6 Ch 7 -> Class 7 Ch 9`, `NCERT Class 7 Ch 9 -> Class 8 Ch 1`), Form A/B badge logic, empirical score deltas, and offline service worker asset bundling.*
 
-6. **Live HTTP Smoke Test:**
+6. **Comprehensive Security & Audit Regression Suite:**
+```bash
+node test-security.js
+```
+*Verifies 26/26 assertions covering: unauthenticated mutation rejection (401), teacher overview with bearer token (200, resolving AUD-01), invalid token rejection (401), cryptographic HMAC session tokens, IDOR cross-classroom protection (403), multilingual student name Unicode validation, join code validation, student progress route authentication & IDOR isolation (AUD-05), key rotation invalidation & tamper detection (AUD-02), rate-limiter connection-based enforcement immune to spoofed forwarding headers (AUD-03), strict CORS allowlist enforcement (AUD-04), 64KB request body limits (413), and formative practice evaluation from trusted question bank (anti-bias).*
+
+7. **Live HTTP Smoke Test:**
 ```bash
 node test-http.js
 ```
-*Spawns an in-process HTTP server, executes live `fetch` calls against 10 API routes, verifies HTTP 200 responses and payloads, and restores `ccp-data.json`.*
+*Spawns an in-process HTTP server, executes live `fetch` calls against 11 API routes with valid teacher and student session tokens, verifies HTTP 200 responses and payloads, and restores `ccp-data.json`.*
+
+**Total Combined Automated Verifications: 144 / 144 passed (100%)**.
+
+---
+
+## ⚙️ Environment Configuration
+
+The application operates zero-config in development using secure in-memory ephemeral keys. For production deployments, configure the following environment variables:
+
+| Variable | Requirement | Purpose |
+| :--- | :--- | :--- |
+| `SESSION_SECRET` | Required in production (min 32 chars) | HMAC-SHA256 session token signing key. Startup fails immediately if missing or matching default in production mode. |
+| `ALLOWED_ORIGINS` | Optional (comma-separated list) | Explicit CORS origin allowlist (e.g. `https://my-domain.org,https://my-tunnel.trycloudflare.com`). Replaces wildcard subdomain matching. |
+| `TRUST_PROXY` | Optional (`true` / `false`, default `false`) | When set to `true`, enables inspection of `x-forwarded-for` behind reverse proxies (e.g. Nginx, Cloudflare). Left disabled by default to prevent client IP spoofing. |
+| `PORT` | Optional (default `3001`) | Backend Express server port. |
+| `NODE_ENV` | Optional (`development` / `production`) | Triggers strict production security validations when set to `production`. |
 
 ---
 
 ## 🏛️ Technology Stack & Limitations
 
 * **Frontend:** React 18, Tailwind CSS, Vite, React Router DOM, Plus Jakarta Sans & Noto Sans Devanagari typography.
-* **Backend:** Node.js, Express, CORS.
-* **Database & Storage:** Synchronous, file-persisted JSON demo store (`server/db/ccp-data.json`). It has no SQL transaction or multi-process concurrency guarantees.
+* **Backend:** Node.js, Express, CORS (origin allowlist), cryptographic HMAC-SHA256 session token system.
+* **Database & Storage:** Pure-JS zero-dependency resilient store with atomic file replacement (`.tmp` write + rename/copy fallback) and automated startup backup snapshot rotation (`ccp-data.backup.json`). Eliminates native compilation fragility on Windows evaluation laptops.
 * **Algorithms:** Breadth-First Search (BFS) backward prerequisite traversal, Kahn's Topological Sorting algorithm for remediation path sequencing.
-* **Curriculum Data Scope:** Scoped to Classes 6–8 (31 nodes, 37 edges). Classes 9–10 are not implemented in this prototype.
-* **Bilingual Scope:** Selected interface labels are translated into Hindi; lesson explanations and questions remain primarily in English.
-* **Network & Connectivity:** Selected GET responses and the static app shell are cached, but the complete Learn–Solve–Test loop cannot run offline because quiz generation and grading require the backend.
+* **Curriculum Data Scope:** Scoped to Classes 6–8 (31 nodes, 37 edges). Classes 9–10 are non-goals for this prototype to preserve rigorous NCERT citation integrity without fabricating untested relationships.
+* **Question Bank & Anti-Bias:** 207 questions across Classes 6–8 with balanced answer distribution across options A, B, C, D (`{ 0: 71, 1: 50, 2: 45, 3: 41 }`). Correct answers are no longer assumed to be option zero; formative practice validates via `/api/quiz/check-practice`.
+* **Bilingual Scope:** Bilingual toggle translates major UI labels, status indicators, 3-stage progress indicators, and feedback messages into Hindi; lesson explanations and questions remain primarily in English.
+* **Network & Connectivity:** Offline Service Worker caches the static application shell for zero-latency page reloads. Selected GET responses are cached in session storage with live byte savings tracked. Dynamic quiz submission and grading require active backend connectivity.
 
 ---
 

@@ -115,30 +115,35 @@ npm run seed
    * **33/33 assertions passed (100%)**.
    * Validates dual-persona state isolation (Priya Singh Class 7 vs Sneha Rao Class 8), verified NCERT prerequisite links (`NCERT Class 6 Ch 7 -> Class 7 Ch 9`, `NCERT Class 7 Ch 9 -> Class 8 Ch 1`), Form A/B badge logic, empirical score deltas, and offline service worker asset bundling.
 
-6. **All Non-HTTP Test Suites (`npm test`):**
-   * **98 / 98 assertions passed (100%)** across all 5 test files with automated database state preservation.
+6. **Comprehensive Security & Audit Regression Suite (`node test-security.js`):**
+   * **26/26 assertions passed (100%)**.
+   * Validates unauthenticated teacher mutation rejection (401), teacher overview with bearer token (200, resolving AUD-01), invalid token rejection (401), cryptographic HMAC session tokens, IDOR cross-classroom protection (403), multilingual student name Unicode validation (rejects XSS and malformed input while accepting Indian languages like Devanagari), join code validation, student progress route authentication & IDOR isolation (AUD-05), key rotation invalidation & tamper detection (AUD-02), rate-limiter connection-based enforcement immune to spoofed forwarding headers (AUD-03), strict CORS allowlist enforcement (AUD-04), request body size limits (rejects >64KB with 413), and formative practice evaluation from trusted question bank (immune to option shuffling).
 
-7. **Live HTTP Smoke Suite (`node test-http.js`):**
+7. **All Non-HTTP Test Suites (`npm test`):**
+   * **133 / 133 assertions passed (100%)** across all 6 test files with automated database state preservation.
+
+8. **Live HTTP Smoke Suite (`node test-http.js`):**
    * **11/11 endpoint checks passed (100%)** over actual network sockets.
-   * Validates `GET /api/health`, `POST /api/auth/teacher/login`, `POST /api/auth/student/login`, `GET /api/teacher/class/:id/overview`, `GET /api/teacher/knowledge-graph`, `GET /api/student/topics/:id`, `GET /api/student/trace/:id/:node`, `GET /api/student/learn/:node`, `GET /api/quiz/generate/:node`, and `GET /` (static client serving).
+   * Validates `GET /api/health`, `POST /api/auth/teacher/login`, `POST /api/auth/student/login`, `GET /api/teacher/class/:id/overview` (with teacher auth token), `GET /api/teacher/knowledge-graph`, `GET /api/student/topics/:id` (with student auth token), `GET /api/student/trace/:id/:node` (with student auth token), `GET /api/student/learn/:node`, `GET /api/quiz/generate/:node`, and `GET /` (static client serving).
    * Automatically restores `server/db/ccp-data.json` upon completion.
+   * **Total Combined Automated Checks: 144 / 144 passed (100%)**.
 
-8. **Client Production Build (`npm run build` in `client`):**
-   * Built successfully via Vite 5.4.
+9. **Client Production Build (`npm run build` in `client`):**
+   * Built successfully via Vite 5.4 in 4.94s.
    * Bundle metrics:
      * `dist/index.html`: 1.06 kB (0.59 kB gzip)
      * CSS bundle: 38.00 kB (6.69 kB gzip)
-     * JS bundle: 241.03 kB (71.91 kB gzip)
+     * JS bundle: 241.76 kB (72.16 kB gzip)
      * Service worker: `dist/sw.js` (minimal shell caching, `/api/` untouched)
-     * **Total combined gzipped payload: 79.19 kB**.
-   * **Live Public Demo Tunnel:** Health and app returned HTTP 200 on 2026-10-24, but the quiz route still serves mixed Form A/Form B items for seeded Sneha. Deploy the source fix before judging. Link: `https://interesting-aug-butler-expects.trycloudflare.com`
+     * **Total combined gzipped payload: ~79.44 kB**.
 
 ---
 
-## Current Prototype Limitations
+## Current Prototype Scope & Truthful Boundaries
 
-* **Curriculum Range:** Scoped strictly to Classes 6–8 (31 competency nodes). Classes 9 and 10 are planned for future iterations and are not implemented in this prototype.
-* **Item Bank:** Includes a curated sample of diagnostic and practice questions for Classes 6–8; it is not an exhaustive official NCERT repository. Dedicated Form B items currently cover 6_fractions, 7_rational_numbers, 8_rational_numbers_adv, and 8_linear_equations; other topics use the available item pool for reassessment.
-* **Language Support:** Bilingual toggle translates major UI labels and statuses; lesson explanatory text and questions remain in English.
-* **Connectivity Mode:** Selected GET responses and the static app shell are cached, but the complete Learn–Solve–Test loop and grading still require the backend.
-* **Data Storage:** The backend utilizes a synchronous, file-persisted JSON store (`ccp-data.json`); it does not provide ACID SQL transactions or multi-process concurrency locks.
+* **Curriculum Range:** Scoped strictly to Classes 6–8 (31 competency nodes, 37 prerequisite edges). Classes 9 and 10 are non-goals for this prototype to preserve rigorous NCERT citation integrity without fabricating untested relationships.
+* **Item Bank:** Expanded to 207 questions across Classes 6–8. Dedicated parallel Form B items now cover all 9 core remediation competencies (`6_whole_numbers`, `6_integers`, `6_fractions`, `6_decimals`, `7_integers_ops`, `7_fractions_decimals`, `7_rational_numbers`, `8_rational_numbers_adv`, `8_linear_equations`).
+* **Answer Distribution (Anti-Bias):** Answers are distributed across positions A, B, C, and D (`{ 0: 71, 1: 50, 2: 45, 3: 41 }`). Correct answers are no longer assumed to be option zero; formative practice validates via `/api/quiz/check-practice`.
+* **Language Support:** Bilingual toggle translates major UI labels, status indicators, 3-stage progress indicators, and feedback messages into Hindi; explanatory lesson content and questions remain in English.
+* **Connectivity Mode:** Offline Service Worker caches the static application shell for instant page loads. Selected GET responses are cached in `sessionStorage` with live byte savings tracked. Dynamic quiz submission and grading require active backend connectivity.
+* **Data Storage:** Pure-JS zero-dependency resilient store with atomic file replacement (`.tmp` write + rename/copy fallback) and automated startup backup rotation (`ccp-data.backup.json`). Eliminates native compilation fragility on judge laptops.

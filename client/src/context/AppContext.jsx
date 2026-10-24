@@ -167,6 +167,12 @@ export function AppProvider({ children }) {
   // Network optimizer for low-bandwidth environments
   const cachedFetch = async (url, options = {}) => {
     const method = options.method ? options.method.toUpperCase() : 'GET';
+    const headers = { ...(options.headers || {}) };
+    if (user?.token && !headers['Authorization'] && !headers['authorization']) {
+      headers['Authorization'] = `Bearer ${user.token}`;
+    }
+    const finalOptions = { ...options, headers };
+
     if (lowBandwidth && method === 'GET') {
       const cacheKey = `ccp_cache_${url}`;
       const cached = sessionStorage.getItem(cacheKey);
@@ -177,7 +183,7 @@ export function AppProvider({ children }) {
           headers: { 'Content-Type': 'application/json', 'X-CCP-Cache': 'HIT' }
         });
       }
-      const response = await fetch(url, options);
+      const response = await fetch(url, finalOptions);
       if (response.ok) {
         const text = await response.clone().text();
         try {
@@ -186,24 +192,29 @@ export function AppProvider({ children }) {
       }
       return response;
     }
-    return fetch(url, options);
+    return fetch(url, finalOptions);
   };
 
-  const loginTeacher = (teacherData, classrooms) => {
-    const userData = { role: 'teacher', ...teacherData, classrooms };
+  const loginTeacher = (teacherData, classrooms, token = null) => {
+    const sessionToken = token || teacherData?.token || null;
+    const userData = { role: 'teacher', ...teacherData, classrooms, token: sessionToken };
     setUser(userData);
     if (classrooms && classrooms.length > 0) {
       setActiveClassroom(classrooms[0]);
     }
   };
 
-  const loginStudent = (studentData, classroomData) => {
-    const userData = { role: 'student', ...studentData, classroom: classroomData };
+  const loginStudent = (studentData, classroomData, token = null) => {
+    // Clear any low-bandwidth cached responses from a previous student session
+    try { sessionStorage.clear(); } catch (_) {}
+    const sessionToken = token || studentData?.token || null;
+    const userData = { role: 'student', ...studentData, classroom: classroomData, token: sessionToken };
     setUser(userData);
     setActiveClassroom(classroomData);
   };
 
   const logout = () => {
+    try { sessionStorage.clear(); } catch (_) {}
     setUser(null);
     setActiveClassroom(null);
     localStorage.removeItem('ccp_user');

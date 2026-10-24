@@ -9,6 +9,19 @@ const PRACTICE_QUESTION_COUNT = 5;
 const MASTERY_QUESTION_COUNT = 5;
 const MASTERY_THRESHOLD = 0.7; // 70% to pass
 
+// In-memory idempotency cache for deduplicating rapid clicks or resubmissions
+const recentSubmissions = new Map();
+const IDEMPOTENCY_WINDOW_MS = 20000; // 20 seconds window
+
+function cleanExpiredSubmissions() {
+  const now = Date.now();
+  for (const [key, item] of recentSubmissions.entries()) {
+    if (now - item.timestamp > 300000) { // 5 minutes max retention
+      recentSubmissions.delete(key);
+    }
+  }
+}
+
 /**
  * Generate a quiz for a given node and type.
  * Supports parallel assessment forms (Form A for initial diagnostic, Form B for reassessment).
@@ -123,10 +136,32 @@ export function generateQuiz(nodeId, quizType = 'diagnostic', studentId = null) 
  * @param {string} quizType - 'diagnostic' | 'practice' | 'mastery'
  * @param {Array} answers - Array of { questionId, selectedOption }
  * @param {number|null} timeTaken - seconds
+ * @param {string|null} submissionToken - idempotency token
  */
-export function gradeQuiz(studentId, nodeId, quizType, answers, timeTaken = null) {
+export function gradeQuiz(studentId, nodeId, quizType, answers, timeTaken = null, submissionToken = null) {
   if (!Array.isArray(answers) || answers.length === 0) {
     return { error: 'Answers must be a non-empty array' };
+  }
+
+  cleanExpiredSubmissions();
+
+  // Deduplication check: by explicit token or by student+node+quizType+answers fingerprint
+  const answersFingerprint = answers
+    .map(a => `${a.questionId}:${a.selectedOption}`)
+    .sort()
+    .join('|');
+  const fallbackKey = `fp_${studentId}_${nodeId}_${quizType}_${answersFingerprint}`;
+
+  if (submissionToken && recentSubmissions.has(submissionToken)) {
+    const cached = recentSubmissions.get(submissionToken);
+    return { ...cached.result, deduplicated: true, cachedAt: cached.timestamp };
+  }
+
+  if (recentSubmissions.has(fallbackKey)) {
+    const cached = recentSubmissions.get(fallbackKey);
+    if (Date.now() - cached.timestamp < IDEMPOTENCY_WINDOW_MS) {
+      return { ...cached.result, deduplicated: true, cachedAt: cached.timestamp };
+    }
   }
 
   const nodeQuestions = questions[nodeId];
@@ -200,7 +235,7 @@ export function gradeQuiz(studentId, nodeId, quizType, answers, timeTaken = null
 
   const nextStatus = passed ? 'mastered' : (quizType === 'diagnostic' ? 'gap_found' : (priorMastery?.status || 'learning'));
 
-  return {
+  const finalResponse = {
     nodeId,
     quizType,
     score,
@@ -228,6 +263,15 @@ export function gradeQuiz(studentId, nodeId, quizType, answers, timeTaken = null
       disclaimer: "Demonstration of simulated mastery transition. Does not claim real-world clinical learning gains from synthetic demo data."
     }
   };
+
+  // Cache for idempotency deduplication
+  const now = Date.now();
+  recentSubmissions.set(fallbackKey, { result: finalResponse, timestamp: now });
+  if (submissionToken) {
+    recentSubmissions.set(submissionToken, { result: finalResponse, timestamp: now });
+  }
+
+  return finalResponse;
 }
 
 /**

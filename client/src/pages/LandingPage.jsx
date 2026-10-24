@@ -28,7 +28,7 @@ export default function LandingPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        loginTeacher(data.teacher, data.classrooms);
+        loginTeacher(data.teacher, data.classrooms, data.token);
         navigate('/teacher');
       } else {
         setError(data.error || 'Invalid teacher code');
@@ -59,7 +59,7 @@ export default function LandingPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        loginStudent(data.student, data.classroom);
+        loginStudent(data.student, data.classroom, data.token);
         navigate('/student');
       } else {
         setError(data.error || 'Invalid credentials or class code');

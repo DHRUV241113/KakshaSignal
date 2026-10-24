@@ -66,15 +66,47 @@ export default function StudentLearnSolveTest() {
     loadData();
   }, [nodeId, searchParams]);
 
-  const handlePracticeSelect = (questionId, optionIdx, correctIdx) => {
+  const handlePracticeSelect = async (questionId, optionIdx, optionText = null) => {
     setPracticeAnswers(prev => ({ ...prev, [questionId]: optionIdx }));
-    const isCorrect = optionIdx === 0; // In questions.js, option 0 is the correct answer
+    
+    // Find option text from practice quiz if not passed directly
+    const q = practiceQuiz?.questions?.find(item => item.id === questionId);
+    const textToSend = optionText || (q && q.options && q.options[optionIdx]) || null;
+
+    try {
+      const res = await fetch('/api/quiz/check-practice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nodeId,
+          questionId,
+          selectedOption: optionIdx,
+          selectedOptionText: textToSend
+        })
+      });
+
+      if (res.ok) {
+        const checkResult = await res.json();
+        setPracticeFeedback(prev => ({
+          ...prev,
+          [questionId]: {
+            selected: optionIdx,
+            isCorrect: checkResult.isCorrect,
+            text: checkResult.isCorrect ? t('feedbackCorrect') : t('feedbackIncorrect'),
+            explanation: checkResult.explanation
+          }
+        }));
+        return;
+      }
+    } catch (_) {}
+
+    // Fallback: If offline and check-practice is unreachable, show explanation without assuming option 0
     setPracticeFeedback(prev => ({
       ...prev,
       [questionId]: {
         selected: optionIdx,
-        isCorrect,
-        text: isCorrect ? t('feedbackCorrect') : t('feedbackIncorrect')
+        isCorrect: false,
+        text: t('feedbackExplanation')
       }
     }));
   };
@@ -105,7 +137,8 @@ export default function StudentLearnSolveTest() {
 
       // If failed, automatically trigger backward trace to find root cause!
       if (!result.passed) {
-        const traceRes = await fetch(`/api/student/trace/${user.id}/${nodeId}`);
+        const headers = user?.token ? { 'Authorization': `Bearer ${user.token}` } : {};
+        const traceRes = await fetch(`/api/student/trace/${user.id}/${nodeId}`, { headers });
         const traceResult = await traceRes.json();
         setGapTrace(traceResult);
       }
@@ -327,7 +360,7 @@ export default function StudentLearnSolveTest() {
                       return (
                         <button
                           key={oIdx}
-                          onClick={() => handlePracticeSelect(q.id, oIdx, 0)}
+                          onClick={() => handlePracticeSelect(q.id, oIdx, opt)}
                           className={`p-3 rounded-xl border text-xs font-medium text-left transition ${
                             isOptionSelected
                               ? 'bg-amber-500 text-white border-amber-600 font-bold shadow-sm'
