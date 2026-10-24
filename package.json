@@ -1,0 +1,13 @@
+{
+  "name": "curriculum-continuity-pass",
+  "version": "1.0.0",
+  "description": "Teacher-controlled adaptive learning prototype for Indian Classes 6-8",
+  "private": true,
+  "scripts": {
+    "dev:server": "cd server && node index.js",
+    "dev:client": "cd client && npx vite --port 5173",
+    "build:client": "cd client && npx vite build",
+    "seed": "cd server && node db/seed.js",
+    "start": "cd server && node index.js"
+  }
+}
