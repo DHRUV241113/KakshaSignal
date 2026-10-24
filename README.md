@@ -7,6 +7,18 @@
 
 ---
 
+## 📸 Screenshots
+
+### Application Landing Page — Live Demo
+![KakshaSignal App Landing Page](screenshots/app-landing-page.png)
+
+*One-click evaluation launchers for 4 demo personas (Mrs. Sharma, Sneha Rao, Priya Singh, Aarav Patel) with Teacher & Student portals, Hindi/English toggle, and low-bandwidth mode.*
+
+### GitHub Repository Overview
+![KakshaSignal GitHub README](screenshots/github-readme-preview.png)
+
+---
+
 ## 🏆 Project Overview
 
 **KakshaSignal** addresses the cumulative learning gap problem in Indian middle school classrooms (Classes 6–8; Classes 9–10 are non-goals for this prototype). When a student struggles with a new concept—such as Class 8 Rational Numbers—the breakdown frequently stems from an unmastered prerequisite from one or two grades earlier, such as Class 6 Fractions.
