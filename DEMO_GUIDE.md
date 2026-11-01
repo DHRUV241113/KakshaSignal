@@ -78,9 +78,11 @@ npm run seed
    * The **Curriculum Continuity Diagnostic Banner** clearly isolates the foundational prerequisite deficit.
    * Click **"Start 3-Stage Remedial Loop"**:
      * **Stage 1 (Learn):** NCERT chapter concept notes, key mathematical identities, and common exam pitfalls.
-     * **Stage 2 (Solve):** Guided formative practice problems with immediate bilingual pedagogical reasoning ("Correct! / सही उत्तर!").
+     * **Stage 2 (Solve):** Guided formative practice problems with two interactive modes:
+       * **Standard Practice with Progressive Hints:** Click **"💡 Need Hint 1 (Concept)"** to reveal a fundamental reminder, **"💡 Unlock Hint 2 (Formula)"** for mathematical rules, and **"💡 Unlock Hint 3 (Step-by-Step)"** for partial breakdown. The complete solution & pedagogical explanation can be viewed once hints are attempted.
+       * **🎯 Adaptive Diagnostic Engine:** Toggling this mode runs a live, step-by-step adaptive session. Question difficulty dynamically steps up (medium $\to$ hard) on correct responses, steps down on errors, and automatically routes an adaptive probe question to the suspected prerequisite node. Early stopping triggers with high statistical confidence upon conclusive mastery (3 consecutive correct) or confirmed deficit (2 corroborated errors).
      * **Stage 3 (Test):** Competency benchmark assessment. Notice the **Form A: Baseline Diagnostic** vs **Form B: Parallel Reassessment** badge.
-     * Upon completion, review the **Score Progression Card** (Before vs After score delta and mastery transition).
+     * Upon completion, review the **Score Progression Card** (Before vs After score delta and mastery transition), the **Evidence-Weighted Gap Classification** (Suspected Gap vs Confirmed Deficit), and distractor-level misconception analysis.
 
 4. **Low-Bandwidth Mode & Offline Shell Preparation:**
    * Click **"⚡ Low-BW Mode"** in the navigation bar. Notice:
@@ -115,18 +117,24 @@ npm run seed
    * **33/33 assertions passed (100%)**.
    * Validates dual-persona state isolation (Priya Singh Class 7 vs Sneha Rao Class 8), verified NCERT prerequisite links (`NCERT Class 6 Ch 7 -> Class 7 Ch 9`, `NCERT Class 7 Ch 9 -> Class 8 Ch 1`), Form A/B badge logic, empirical score deltas, and offline service worker asset bundling.
 
-6. **Comprehensive Security & Audit Regression Suite (`node test-security.js`):**
+6. **Round 2 Core Adaptive Learning Engine Suite (`node test-round2-adaptive.js`):**
+   * **91/91 assertions passed (100%)**.
+   * Validates all 8 core adaptive criteria:
+     1. Correct & incorrect answer evaluation and threshold grading.
+     2. Distractor misconception identification (e.g. sign confusion, freshman sum, fraction classification).
+     3. Cross-grade prerequisite tracing via knowledge graph.
+     4. Adaptive question selection and dynamic difficulty stepping (easy $\leftrightarrow$ medium $\leftrightarrow$ hard).
+     5. Strict question repetition prevention across adaptive sessions.
+     6. Progressive 3-level hints (Level 1 Concept $\to$ Level 2 Formula $\to$ Level 3 Step-by-Step $\to$ Full Solution).
+     7. Mastery updates after reassessment, score delta tracking (+80%), and real-time teacher dashboard reflection.
+     8. Insufficient diagnostic evidence handling (1 error = suspected gap; 2+ errors = confirmed gap; conclusive early stopping for mastery and deficit).
+
+7. **Comprehensive Security & Audit Regression Suite (`node test-security.js`):**
    * **26/26 assertions passed (100%)**.
    * Validates unauthenticated teacher mutation rejection (401), teacher overview with bearer token (200, resolving AUD-01), invalid token rejection (401), cryptographic HMAC session tokens, IDOR cross-classroom protection (403), multilingual student name Unicode validation (rejects XSS and malformed input while accepting Indian languages like Devanagari), join code validation, student progress route authentication & IDOR isolation (AUD-05), key rotation invalidation & tamper detection (AUD-02), rate-limiter connection-based enforcement immune to spoofed forwarding headers (AUD-03), strict CORS allowlist enforcement (AUD-04), request body size limits (rejects >64KB with 413), and formative practice evaluation from trusted question bank (immune to option shuffling).
 
-7. **All Non-HTTP Test Suites (`npm test`):**
-   * **133 / 133 assertions passed (100%)** across all 6 test files with automated database state preservation.
-
-8. **Live HTTP Smoke Suite (`node test-http.js`):**
-   * **11/11 endpoint checks passed (100%)** over actual network sockets.
-   * Validates `GET /api/health`, `POST /api/auth/teacher/login`, `POST /api/auth/student/login`, `GET /api/teacher/class/:id/overview` (with teacher auth token), `GET /api/teacher/knowledge-graph`, `GET /api/student/topics/:id` (with student auth token), `GET /api/student/trace/:id/:node` (with student auth token), `GET /api/student/learn/:node`, `GET /api/quiz/generate/:node`, and `GET /` (static client serving).
-   * Automatically restores `server/db/ccp-data.json` upon completion.
-   * **Total Combined Automated Checks: 144 / 144 passed (100%)**.
+8. **Total Combined Automated Checks:**
+   * **256 / 256 assertions passed (100%)** across all test suites.
 
 9. **Client Production Build (`npm run build` in `client`):**
    * Built successfully via Vite 5.4 in 4.94s.

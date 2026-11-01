@@ -1,0 +1,107 @@
+1
+00:00:01,000 --> 00:00:05,200
+In every classroom, students learn at different speeds.
+
+2
+00:00:05,500 --> 00:00:10,200
+Sometimes, a student struggles with a new concept not because they cannot learn it,
+
+3
+00:00:10,400 --> 00:00:14,800
+but because an earlier foundation is missing.
+
+4
+00:00:15,000 --> 00:00:19,500
+Teachers need to find that gap before it grows.
+
+5
+00:00:22,000 --> 00:00:26,000
+Meet KakshaSignal, a teacher-led adaptive learning system
+
+6
+00:00:26,200 --> 00:00:30,200
+built to make learning gaps visible, recommend the next best learning step,
+
+7
+00:00:30,400 --> 00:00:34,500
+and keep teachers in control.
+
+8
+00:00:40,500 --> 00:00:45,000
+Sneha is struggling with Class 8 Rational Numbers.
+
+9
+00:00:45,200 --> 00:00:49,500
+Instead of simply marking her answer wrong,
+
+10
+00:00:49,700 --> 00:00:54,000
+KakshaSignal traces the stored prerequisite relationships
+
+11
+00:00:54,200 --> 00:00:58,500
+to identify an earlier concept that needs attention: Class 6 Fractions.
+
+12
+00:01:08,500 --> 00:01:13,200
+Students then follow a structured Learn, Solve, Test cycle.
+
+13
+00:01:13,500 --> 00:01:18,500
+They study the concept, practise with immediate feedback,
+
+14
+00:01:18,800 --> 00:01:22,500
+and complete an assessment.
+
+15
+00:01:22,800 --> 00:01:27,500
+Where supported, a parallel reassessment checks progress with different questions.
+
+16
+00:01:27,800 --> 00:01:33,300
+The resulting score updates the recorded mastery state and informs the next step.
+
+17
+00:01:47,000 --> 00:01:51,000
+KakshaSignal does not replace the teacher.
+
+18
+00:01:51,200 --> 00:01:55,500
+It gives educators explainable evidence, an overview of classroom needs,
+
+19
+00:01:55,800 --> 00:02:01,000
+and control to assign, verify, or reset a learning intervention.
+
+20
+00:02:12,000 --> 00:02:16,200
+Built with Indian classroom constraints in mind,
+
+21
+00:02:16,500 --> 00:02:21,500
+KakshaSignal offers selected Hindi interface translations,
+
+22
+00:02:21,800 --> 00:02:26,000
+reduced visual effects in low-bandwidth mode, and static-shell caching.
+
+23
+00:02:26,200 --> 00:02:31,000
+Assessment and grading still require an active backend connection.
+
+24
+00:02:30,800 --> 00:02:38,500
+Under the interface, a deterministic prerequisite graph makes every recommendation inspectable across Classes 6 to 8.
+
+25
+00:02:40,200 --> 00:02:48,000
+The latest updates add signed sessions, classroom access checks, and 144 passing verification tests.
+
+26
+00:02:48,800 --> 00:02:53,800
+KakshaSignal helps teachers identify the gap, adapt the next step,
+
+27
+00:02:54,000 --> 00:02:57,800
+and keep every learner moving forward.

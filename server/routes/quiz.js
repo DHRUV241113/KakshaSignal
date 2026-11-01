@@ -1,6 +1,13 @@
 // Quiz routes
 import { Router } from 'express';
-import { generateQuiz, gradeQuiz, getStudentNodeStatus } from '../services/quizEngine.js';
+import {
+  generateQuiz,
+  gradeQuiz,
+  getStudentNodeStatus,
+  getQuestionHint,
+  getNextAdaptiveQuestion
+} from '../services/quizEngine.js';
+import { analyzeMisconception } from '../services/gapTracer.js';
 import questions from '../data/questions.js';
 
 const router = Router();
@@ -70,6 +77,54 @@ router.post('/check-practice', (req, res) => {
     isCorrect,
     explanation: q.explanation || (isCorrect ? '✅ Excellent! Your reasoning is correct.' : '💡 Not quite. Re-check the prerequisite rule above and try again.')
   });
+});
+
+// Progressive Hint endpoint (Levels 1, 2, 3)
+router.post('/hint', (req, res) => {
+  const { questionId, hintLevel } = req.body;
+  if (!questionId) {
+    return res.status(400).json({ error: 'Missing required field: questionId' });
+  }
+
+  const hintResult = getQuestionHint(questionId, hintLevel || 1);
+  if (hintResult.error) {
+    return res.status(404).json(hintResult);
+  }
+
+  res.json(hintResult);
+});
+
+// Adaptive question stepping endpoint
+router.post('/adaptive-next', (req, res) => {
+  const { studentId, nodeId, history, form, quizType } = req.body;
+  if (!nodeId) {
+    return res.status(400).json({ error: 'Missing required field: nodeId' });
+  }
+
+  const result = getNextAdaptiveQuestion({
+    studentId: studentId ? parseInt(studentId, 10) : null,
+    nodeId,
+    history: Array.isArray(history) ? history : [],
+    form: form || 'A',
+    quizType: quizType || 'diagnostic'
+  });
+
+  if (result.error) {
+    return res.status(400).json(result);
+  }
+
+  res.json(result);
+});
+
+// Misconception analysis endpoint
+router.post('/analyze-misconception', (req, res) => {
+  const { questionId, selectedOption, nodeId } = req.body;
+  if (!questionId || selectedOption === undefined) {
+    return res.status(400).json({ error: 'Missing required fields: questionId, selectedOption' });
+  }
+
+  const analysis = analyzeMisconception(questionId, selectedOption, nodeId);
+  res.json(analysis);
 });
 
 // Get student's status for a specific node

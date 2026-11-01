@@ -424,16 +424,19 @@ class MemoryDatabase {
         }
 
         // Quiz attempts
-        if (/SELECT .* FROM quiz_attempts WHERE student_id =/i.test(cleanSql)) {
-          const [student_id, node_id] = params;
-          if (node_id) {
+        if (/SELECT .* FROM quiz_attempts/i.test(cleanSql)) {
+          if (/WHERE student_id =/i.test(cleanSql)) {
+            const [student_id, node_id] = params;
+            if (node_id) {
+              return db.tables.quiz_attempts
+                .filter(q => q.student_id === Number(student_id) && q.node_id === node_id)
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            }
             return db.tables.quiz_attempts
-              .filter(q => q.student_id === Number(student_id) && q.node_id === node_id)
+              .filter(q => q.student_id === Number(student_id))
               .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
           }
-          return db.tables.quiz_attempts
-            .filter(q => q.student_id === Number(student_id))
-            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          return db.tables.quiz_attempts;
         }
 
         // Teacher assignments

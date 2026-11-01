@@ -31,3 +31,8 @@ npm-debug.log*
 
 # Cloudflare tunnel binaries
 .cloudflared/
+
+# Intermediate video render cache and backups
+video_assets/
+*.original-backup.mp4
+

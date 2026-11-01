@@ -1,9 +1,10 @@
 // Quiz Question Bank for CBSE Math Classes 6-8
-// Questions mapped to knowledge graph nodes
+// Questions mapped to knowledge graph nodes with pedagogical explanations
 // Based on NCERT textbook exercise patterns
-// Each question has: correct answer, options, and the specific competency tested
 
-const questions = {
+import { enrichQuestion } from './questionEnhancements.js';
+
+const rawQuestions = {
   "6_whole_numbers": [
     {
       "id": "6wn1",
@@ -16,7 +17,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "predecessor-successor",
-      "form": "A"
+      "form": "A",
+      "explanation": "The predecessor of a whole number is obtained by subtracting 1 from it: 1000 - 1 = 999."
     },
     {
       "id": "6wn2",
@@ -29,7 +31,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "properties",
-      "form": "A"
+      "form": "A",
+      "explanation": "The distributive property of multiplication over addition states that a × (b + c) = a × b + a × c."
     },
     {
       "id": "6wn3",
@@ -42,7 +45,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "operations",
-      "form": "A"
+      "form": "A",
+      "explanation": "The first 5 whole numbers are 0, 1, 2, 3, and 4. Their sum is 0 + 1 + 2 + 3 + 4 = 10."
     },
     {
       "id": "6wn4",
@@ -55,7 +59,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "identification",
-      "form": "A"
+      "form": "A",
+      "explanation": "Whole numbers start from 0 and include all positive integers: {0, 1, 2, 3, ...}. Negative numbers like -3 are not whole numbers."
     },
     {
       "id": "6wn5",
@@ -68,7 +73,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "number-line",
-      "form": "A"
+      "form": "A",
+      "explanation": "On a standard number line with uniform unit spacing, 4 lies strictly between 3 and 5."
     },
     {
       "id": "6wn6",
@@ -81,7 +87,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "properties-application",
-      "form": "A"
+      "form": "A",
+      "explanation": "By the distributive property: 126 × 55 + 126 × 45 = 126 × (55 + 45) = 126 × 100 = 12600."
     },
     {
       "id": "6wn7",
@@ -94,7 +101,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "predecessor-successor",
-      "form": "B"
+      "form": "B",
+      "explanation": "The successor of a whole number is obtained by adding 1: 9999 + 1 = 10000."
     },
     {
       "id": "6wn8",
@@ -107,7 +115,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "properties",
-      "form": "B"
+      "form": "B",
+      "explanation": "The associative property of addition states that (a + b) + c = a + (b + c); grouping does not affect the sum."
     },
     {
       "id": "6wn9",
@@ -120,7 +129,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "operations",
-      "form": "B"
+      "form": "B",
+      "explanation": "The first 4 whole numbers are 0, 1, 2, and 3. Their sum is 0 + 1 + 2 + 3 = 6."
     },
     {
       "id": "6wn10",
@@ -133,7 +143,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "number-line",
-      "form": "B"
+      "form": "B",
+      "explanation": "Natural numbers start from 1, whereas whole numbers include 0. Negative numbers like -5 are integers, not whole numbers."
     },
     {
       "id": "6wn11",
@@ -146,7 +157,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "properties-application",
-      "form": "B"
+      "form": "B",
+      "explanation": "By the distributive property: 245 × 68 + 245 × 32 = 245 × (68 + 32) = 245 × 100 = 24500."
     }
   ],
   "6_integers": [
@@ -161,7 +173,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "addition",
-      "form": "A"
+      "form": "A",
+      "explanation": "When adding integers with different signs, subtract the smaller absolute value from the larger and keep the sign of the larger: (-5) + 3 = -2."
     },
     {
       "id": "6i2",
@@ -174,7 +187,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "number-line",
-      "form": "A"
+      "form": "A",
+      "explanation": "Moving to the left on a number line means subtracting: starting at 2 and moving 4 units left gives 2 - 4 = -2."
     },
     {
       "id": "6i3",
@@ -187,7 +201,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "ordering",
-      "form": "A"
+      "form": "A",
+      "explanation": "On the number line, numbers increase from left to right. Thus -7 < -3 < -1 < 0 < 5."
     },
     {
       "id": "6i4",
@@ -200,7 +215,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "subtraction",
-      "form": "A"
+      "form": "A",
+      "explanation": "Subtracting a negative number is equivalent to adding its positive opposite: (-8) - (-3) = (-8) + 3 = -5."
     },
     {
       "id": "6i5",
@@ -213,7 +229,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "word-problems",
-      "form": "A"
+      "form": "A",
+      "explanation": "Starting at -4°C and rising by 7°C gives (-4) + 7 = 3°C."
     },
     {
       "id": "6i6",
@@ -226,7 +243,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "absolute-value",
-      "form": "A"
+      "form": "A",
+      "explanation": "The absolute value |x| represents distance from zero on the number line, which is always non-negative: |-15| = 15."
     },
     {
       "id": "6i7",
@@ -239,7 +257,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "addition",
-      "form": "B"
+      "form": "B",
+      "explanation": "Adding integers with opposite signs: 12 - 7 = 5, keeping the positive sign of 12."
     },
     {
       "id": "6i8",
@@ -252,7 +271,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "number-line",
-      "form": "B"
+      "form": "B",
+      "explanation": "Moving 5 units to the left of -1: (-1) - 5 = -6."
     },
     {
       "id": "6i9",
@@ -265,7 +285,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "ordering",
-      "form": "B"
+      "form": "B",
+      "explanation": "Ascending order moves from smallest to largest: -9 < -4 < -2 < 0 < 3."
     },
     {
       "id": "6i10",
@@ -278,7 +299,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "subtraction",
-      "form": "B"
+      "form": "B",
+      "explanation": "Subtracting a negative is equivalent to addition: (-12) - (-5) = (-12) + 5 = -7."
     },
     {
       "id": "6i11",
@@ -291,7 +313,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "word-problems",
-      "form": "B"
+      "form": "B",
+      "explanation": "Starting at -25m elevation and ascending 18m gives (-25) + 18 = -7 m."
     }
   ],
   "6_fractions": [
@@ -306,7 +329,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "identification",
-      "form": "A"
+      "form": "A",
+      "explanation": "An improper fraction is defined as a fraction where the numerator is greater than or equal to the denominator (7 ≥ 3)."
     },
     {
       "id": "6f2",
@@ -319,7 +343,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "conversion",
-      "form": "A"
+      "form": "A",
+      "explanation": "To convert mixed number a b/c to an improper fraction, compute (a × c + b) / c: (2 × 4 + 3) / 4 = 11/4."
     },
     {
       "id": "6f3",
@@ -332,7 +357,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "equivalence",
-      "form": "A"
+      "form": "A",
+      "explanation": "Multiplying both numerator and denominator of 2/5 by 2 gives the equivalent fraction (2 × 2) / (5 × 2) = 4/10."
     },
     {
       "id": "6f4",
@@ -345,7 +371,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "addition",
-      "form": "A"
+      "form": "A",
+      "explanation": "Find the common denominator (LCM of 3 and 6 is 6): 1/3 + 1/6 = 2/6 + 1/6 = 3/6, which simplifies to 1/2."
     },
     {
       "id": "6f5",
@@ -358,7 +385,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "comparison",
-      "form": "A"
+      "form": "A",
+      "explanation": "Convert to a common denominator: 3/4 = 6/8. Since 6/8 > 5/8, 3/4 is greater."
     },
     {
       "id": "6f6",
@@ -371,7 +399,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "subtraction",
-      "form": "A"
+      "form": "A",
+      "explanation": "Convert to a common denominator 6: 5/6 - 1/3 = 5/6 - 2/6 = 3/6 = 1/2."
     },
     {
       "id": "6f7",
@@ -384,7 +413,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "simplification",
-      "form": "B"
+      "form": "B",
+      "explanation": "In 9/4, the numerator 9 is greater than denominator 4, making it an improper fraction."
     },
     {
       "id": "6f8",
@@ -397,7 +427,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "common-denominators",
-      "form": "B"
+      "form": "B",
+      "explanation": "Converting 3 ½: (3 × 2 + 1) / 2 = 7/2."
     },
     {
       "id": "6f9",
@@ -410,7 +441,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "addition",
-      "form": "B"
+      "form": "B",
+      "explanation": "Multiplying numerator and denominator of 3/7 by 2 gives (3 × 2) / (7 × 2) = 6/14."
     },
     {
       "id": "6f10",
@@ -423,7 +455,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "subtraction",
-      "form": "B"
+      "form": "B",
+      "explanation": "Find common denominator 10: 2/5 = 4/10; then 4/10 + 3/10 = 7/10."
     },
     {
       "id": "6f11",
@@ -436,7 +469,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "equivalence",
-      "form": "B"
+      "form": "B",
+      "explanation": "Convert to common denominator 9: 2/3 = 6/9. Comparing 6/9 and 5/9, 6/9 is greater, so 2/3 > 5/9."
     }
   ],
   "6_decimals": [
@@ -451,7 +485,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "place-value",
-      "form": "A"
+      "form": "A",
+      "explanation": "In 45.678, the digit 7 is two places to the right of the decimal point, representing hundredths (7/100 = 0.07)."
     },
     {
       "id": "6d2",
@@ -464,7 +499,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "conversion",
-      "form": "A"
+      "form": "A",
+      "explanation": "Dividing numerator by denominator: 3 ÷ 4 = 0.75."
     },
     {
       "id": "6d3",
@@ -477,7 +513,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "addition",
-      "form": "A"
+      "form": "A",
+      "explanation": "Aligning decimal points: 12.35 + 4.80 = 17.15."
     },
     {
       "id": "6d4",
@@ -490,7 +527,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "comparison",
-      "form": "A"
+      "form": "A",
+      "explanation": "Comparing tenths place: in 0.5 tenths is 5; in 0.05 tenths is 0. Since 5 > 0, 0.5 > 0.05."
     },
     {
       "id": "6d5",
@@ -503,7 +541,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "subtraction",
-      "form": "A"
+      "form": "A",
+      "explanation": "0.25 = 25/100, which reduces by dividing numerator and denominator by 25 to 1/4."
     },
     {
       "id": "6d6",
@@ -516,7 +555,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "place-value",
-      "form": "B"
+      "form": "B",
+      "explanation": "In 18.235, the digit 3 is in the hundredths place (value 0.03)."
     },
     {
       "id": "6d7",
@@ -529,7 +569,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "conversion",
-      "form": "B"
+      "form": "B",
+      "explanation": "Dividing 7 by 8 gives 0.875."
     },
     {
       "id": "6d8",
@@ -542,7 +583,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "addition",
-      "form": "B"
+      "form": "B",
+      "explanation": "Aligning decimal points: 24.65 + 3.80 = 28.45."
     },
     {
       "id": "6d9",
@@ -555,7 +597,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "comparison",
-      "form": "B"
+      "form": "B",
+      "explanation": "Comparing tenths place: 0.7 > 0.07 because 7 tenths > 0 tenths."
     },
     {
       "id": "6d10",
@@ -568,7 +611,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "subtraction",
-      "form": "B"
+      "form": "B",
+      "explanation": "0.75 = 75/100, which reduces by dividing numerator and denominator by 25 to 3/4."
     }
   ],
   "6_basic_geometry": [
@@ -582,7 +626,8 @@ const questions = {
         "3"
       ],
       "answer": 0,
-      "competency": "basic-concepts"
+      "competency": "basic-concepts",
+      "explanation": "For basic concepts, applying the foundational mathematical rule yields \"1\"."
     },
     {
       "id": "6bg2",
@@ -594,7 +639,8 @@ const questions = {
         "270°"
       ],
       "answer": 1,
-      "competency": "angle-sum"
+      "competency": "angle-sum",
+      "explanation": "For angle sum, applying the foundational mathematical rule yields \"180°\"."
     },
     {
       "id": "6bg3",
@@ -606,7 +652,8 @@ const questions = {
         "1"
       ],
       "answer": 2,
-      "competency": "quadrilateral-properties"
+      "competency": "quadrilateral-properties",
+      "explanation": "For quadrilateral properties, applying the foundational mathematical rule yields \"2\"."
     },
     {
       "id": "6bg4",
@@ -618,7 +665,8 @@ const questions = {
         "Diameter"
       ],
       "answer": 3,
-      "competency": "circle-concepts"
+      "competency": "circle-concepts",
+      "explanation": "For circle concepts, applying the foundational mathematical rule yields \"Diameter\"."
     },
     {
       "id": "6bg5",
@@ -630,7 +678,8 @@ const questions = {
         "Concurrent lines"
       ],
       "answer": 0,
-      "competency": "line-concepts"
+      "competency": "line-concepts",
+      "explanation": "For line concepts, applying the foundational mathematical rule yields \"Parallel lines\"."
     }
   ],
   "6_algebra_intro": [
@@ -644,7 +693,8 @@ const questions = {
         "6"
       ],
       "answer": 0,
-      "competency": "substitution"
+      "competency": "substitution",
+      "explanation": "For substitution, applying the foundational mathematical rule yields \"11\"."
     },
     {
       "id": "6a2",
@@ -656,7 +706,8 @@ const questions = {
         "3 > 2"
       ],
       "answer": 1,
-      "competency": "identification"
+      "competency": "identification",
+      "explanation": "For identification, applying the foundational mathematical rule yields \"3x + 2\"."
     },
     {
       "id": "6a3",
@@ -668,7 +719,8 @@ const questions = {
         "n × 1 + 3"
       ],
       "answer": 2,
-      "competency": "pattern-to-expression"
+      "competency": "pattern-to-expression",
+      "explanation": "For pattern to expression, applying the foundational mathematical rule yields \"3n + 1\"."
     },
     {
       "id": "6a4",
@@ -680,7 +732,8 @@ const questions = {
         "5"
       ],
       "answer": 3,
-      "competency": "terms-coefficients"
+      "competency": "terms-coefficients",
+      "explanation": "For terms coefficients, applying the foundational mathematical rule yields \"5\"."
     },
     {
       "id": "6a5",
@@ -692,7 +745,8 @@ const questions = {
         "x/7 = 15"
       ],
       "answer": 0,
-      "competency": "forming-equations"
+      "competency": "forming-equations",
+      "explanation": "For forming equations, applying the foundational mathematical rule yields \"x + 7 = 15\"."
     }
   ],
   "6_ratio_proportion": [
@@ -706,7 +760,8 @@ const questions = {
         "1:2"
       ],
       "answer": 0,
-      "competency": "simplification"
+      "competency": "simplification",
+      "explanation": "For simplification, applying the foundational mathematical rule yields \"3:5\"."
     },
     {
       "id": "6rp2",
@@ -718,7 +773,8 @@ const questions = {
         "₹150"
       ],
       "answer": 1,
-      "competency": "unitary-method"
+      "competency": "unitary-method",
+      "explanation": "For unitary method, applying the foundational mathematical rule yields \"₹120\"."
     },
     {
       "id": "6rp3",
@@ -730,7 +786,8 @@ const questions = {
         "Only sometimes"
       ],
       "answer": 2,
-      "competency": "proportion-check"
+      "competency": "proportion-check",
+      "explanation": "For proportion check, applying the foundational mathematical rule yields \"Yes\"."
     },
     {
       "id": "6rp4",
@@ -742,7 +799,8 @@ const questions = {
         "8"
       ],
       "answer": 3,
-      "competency": "finding-terms"
+      "competency": "finding-terms",
+      "explanation": "For finding terms, applying the foundational mathematical rule yields \"8\"."
     },
     {
       "id": "6rp5",
@@ -754,7 +812,8 @@ const questions = {
         "10"
       ],
       "answer": 0,
-      "competency": "word-problems"
+      "competency": "word-problems",
+      "explanation": "For word problems, applying the foundational mathematical rule yields \"8\"."
     }
   ],
   "6_mensuration_perimeter_area": [
@@ -768,7 +827,8 @@ const questions = {
         "80 cm"
       ],
       "answer": 0,
-      "competency": "perimeter-rectangle"
+      "competency": "perimeter-rectangle",
+      "explanation": "For perimeter rectangle, applying the foundational mathematical rule yields \"26 cm\"."
     },
     {
       "id": "6m2",
@@ -780,7 +840,8 @@ const questions = {
         "21 sq cm"
       ],
       "answer": 1,
-      "competency": "area-square"
+      "competency": "area-square",
+      "explanation": "For area square, applying the foundational mathematical rule yields \"49 sq cm\"."
     },
     {
       "id": "6m3",
@@ -792,7 +853,8 @@ const questions = {
         "24 cm"
       ],
       "answer": 2,
-      "competency": "perimeter-triangle"
+      "competency": "perimeter-triangle",
+      "explanation": "For perimeter triangle, applying the foundational mathematical rule yields \"18 cm\"."
     },
     {
       "id": "6m4",
@@ -804,7 +866,8 @@ const questions = {
         "6 cm"
       ],
       "answer": 3,
-      "competency": "inverse-problems"
+      "competency": "inverse-problems",
+      "explanation": "For inverse problems, applying the foundational mathematical rule yields \"6 cm\"."
     },
     {
       "id": "6m5",
@@ -816,7 +879,8 @@ const questions = {
         "Cannot compare"
       ],
       "answer": 0,
-      "competency": "comparison"
+      "competency": "comparison",
+      "explanation": "For comparison, applying the foundational mathematical rule yields \"Square (25 sq cm)\"."
     }
   ],
   "7_integers_ops": [
@@ -831,7 +895,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "multiplication",
-      "form": "A"
+      "form": "A",
+      "explanation": "For multiplication, applying the foundational mathematical rule yields \"15\"."
     },
     {
       "id": "7io2",
@@ -844,7 +909,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "division",
-      "form": "A"
+      "form": "A",
+      "explanation": "For division, applying the foundational mathematical rule yields \"-5\"."
     },
     {
       "id": "7io3",
@@ -857,7 +923,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "sign-rules",
-      "form": "A"
+      "form": "A",
+      "explanation": "For sign rules, applying the foundational mathematical rule yields \"-1\"."
     },
     {
       "id": "7io4",
@@ -870,7 +937,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "properties",
-      "form": "A"
+      "form": "A",
+      "explanation": "For properties, applying the foundational mathematical rule yields \"Distributive\"."
     },
     {
       "id": "7io5",
@@ -883,7 +951,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "division",
-      "form": "A"
+      "form": "A",
+      "explanation": "For division, applying the foundational mathematical rule yields \"4\"."
     },
     {
       "id": "7io6",
@@ -896,7 +965,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "word-problems",
-      "form": "A"
+      "form": "A",
+      "explanation": "For word problems, applying the foundational mathematical rule yields \"-550 m\"."
     },
     {
       "id": "7io7",
@@ -909,7 +979,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "multiplication",
-      "form": "B"
+      "form": "B",
+      "explanation": "For multiplication, applying the foundational mathematical rule yields \"24\"."
     },
     {
       "id": "7io8",
@@ -922,7 +993,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "division",
-      "form": "B"
+      "form": "B",
+      "explanation": "For division, applying the foundational mathematical rule yields \"-5\"."
     },
     {
       "id": "7io9",
@@ -935,7 +1007,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "sign-rules",
-      "form": "B"
+      "form": "B",
+      "explanation": "For sign rules, applying the foundational mathematical rule yields \"1\"."
     },
     {
       "id": "7io10",
@@ -948,7 +1021,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "properties",
-      "form": "B"
+      "form": "B",
+      "explanation": "For properties, applying the foundational mathematical rule yields \"5 × 6\"."
     },
     {
       "id": "7io11",
@@ -961,7 +1035,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "word-problems",
-      "form": "B"
+      "form": "B",
+      "explanation": "For word problems, applying the foundational mathematical rule yields \"-15°C\"."
     }
   ],
   "7_fractions_decimals": [
@@ -976,7 +1051,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "multiplication-fractions",
-      "form": "A"
+      "form": "A",
+      "explanation": "For multiplication fractions, applying the foundational mathematical rule yields \"6/35\"."
     },
     {
       "id": "7fd2",
@@ -989,7 +1065,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "division-fractions",
-      "form": "A"
+      "form": "A",
+      "explanation": "For division fractions, applying the foundational mathematical rule yields \"3/2\"."
     },
     {
       "id": "7fd3",
@@ -1002,7 +1079,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "multiplication-decimals",
-      "form": "A"
+      "form": "A",
+      "explanation": "For multiplication decimals, applying the foundational mathematical rule yields \"3.0\"."
     },
     {
       "id": "7fd4",
@@ -1015,7 +1093,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "division-decimals",
-      "form": "A"
+      "form": "A",
+      "explanation": "For division decimals, applying the foundational mathematical rule yields \"9\"."
     },
     {
       "id": "7fd5",
@@ -1028,7 +1107,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "word-problems",
-      "form": "A"
+      "form": "A",
+      "explanation": "For word problems, applying the foundational mathematical rule yields \"17\"."
     },
     {
       "id": "7fd6",
@@ -1041,7 +1121,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "multiplication-fractions",
-      "form": "B"
+      "form": "B",
+      "explanation": "For multiplication fractions, applying the foundational mathematical rule yields \"1/6\"."
     },
     {
       "id": "7fd7",
@@ -1054,7 +1135,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "division-fractions",
-      "form": "B"
+      "form": "B",
+      "explanation": "For division fractions, applying the foundational mathematical rule yields \"5/4\"."
     },
     {
       "id": "7fd8",
@@ -1067,7 +1149,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "multiplication-decimals",
-      "form": "B"
+      "form": "B",
+      "explanation": "For multiplication decimals, applying the foundational mathematical rule yields \"0.06\"."
     },
     {
       "id": "7fd9",
@@ -1080,7 +1163,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "division-decimals",
-      "form": "B"
+      "form": "B",
+      "explanation": "For division decimals, applying the foundational mathematical rule yields \"30\"."
     },
     {
       "id": "7fd10",
@@ -1093,7 +1177,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "word-problems",
-      "form": "B"
+      "form": "B",
+      "explanation": "For word problems, applying the foundational mathematical rule yields \"18 km\"."
     }
   ],
   "7_rational_numbers": [
@@ -1108,7 +1193,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "identification",
-      "form": "A"
+      "form": "A",
+      "explanation": "A rational number is any number expressible in the form p/q where p and q are integers and q ≠ 0. -3/7 satisfies this definition."
     },
     {
       "id": "7rn2",
@@ -1121,7 +1207,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "addition",
-      "form": "A"
+      "form": "A",
+      "explanation": "With common denominator 3: (-2/3) + (4/3) = (-2 + 4)/3 = 2/3."
     },
     {
       "id": "7rn3",
@@ -1134,7 +1221,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "additive-inverse",
-      "form": "A"
+      "form": "A",
+      "explanation": "The additive inverse of a/b is the number that sums to 0, which is -a/b. The additive inverse of -5/8 is 5/8."
     },
     {
       "id": "7rn4",
@@ -1147,7 +1235,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "multiplication",
-      "form": "A"
+      "form": "A",
+      "explanation": "Multiply numerators and denominators: (-1 × 4) / (2 × 5) = -4/10 = -2/5."
     },
     {
       "id": "7rn5",
@@ -1160,7 +1249,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "number-line",
-      "form": "A"
+      "form": "A",
+      "explanation": "As a decimal, -3/4 = -0.75, which lies between -1 and 0 on the number line."
     },
     {
       "id": "7rn6",
@@ -1173,7 +1263,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "between-rationals",
-      "form": "A"
+      "form": "A",
+      "explanation": "Using the mean method: (1/4 + 1/2) / 2 = (1/4 + 2/4) / 2 = (3/4) / 2 = 3/8."
     },
     {
       "id": "7rn7",
@@ -1186,7 +1277,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "identification",
-      "form": "B"
+      "form": "B",
+      "explanation": "Dividing two negative numbers yields a positive result: -7/(-9) = 7/9, which is positive."
     },
     {
       "id": "7rn8",
@@ -1199,7 +1291,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "subtraction",
-      "form": "B"
+      "form": "B",
+      "explanation": "Subtracting with common denominator: (-3 - 2)/5 = -5/5 = -1."
     },
     {
       "id": "7rn9",
@@ -1212,7 +1305,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "reciprocal",
-      "form": "B"
+      "form": "B",
+      "explanation": "The reciprocal (multiplicative inverse) flips the fraction while preserving sign: reciprocal of -13/17 is -17/13."
     },
     {
       "id": "7rn10",
@@ -1225,7 +1319,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "division",
-      "form": "B"
+      "form": "B",
+      "explanation": "Dividing by a fraction equals multiplying by its reciprocal: (-2/7) ÷ (4/21) = (-2/7) × (21/4) = -42/28 = -3/2."
     },
     {
       "id": "7rn11",
@@ -1238,7 +1333,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "standard-form",
-      "form": "B"
+      "form": "B",
+      "explanation": "A rational number p/q is in standard form if q > 0 and HCF(|p|, q) = 1. -3/5 satisfies these conditions."
     }
   ],
   "7_simple_equations": [
@@ -1252,7 +1348,8 @@ const questions = {
         "x = -7"
       ],
       "answer": 0,
-      "competency": "one-step"
+      "competency": "one-step",
+      "explanation": "For one step, applying the foundational mathematical rule yields \"x = 7\"."
     },
     {
       "id": "7se2",
@@ -1264,7 +1361,8 @@ const questions = {
         "x = 24"
       ],
       "answer": 1,
-      "competency": "one-step"
+      "competency": "one-step",
+      "explanation": "For one step, applying the foundational mathematical rule yields \"x = 7\"."
     },
     {
       "id": "7se3",
@@ -1276,7 +1374,8 @@ const questions = {
         "x = -5"
       ],
       "answer": 2,
-      "competency": "two-step"
+      "competency": "two-step",
+      "explanation": "For two step, applying the foundational mathematical rule yields \"x = 5\"."
     },
     {
       "id": "7se4",
@@ -1288,7 +1387,8 @@ const questions = {
         "x = 12"
       ],
       "answer": 3,
-      "competency": "two-step"
+      "competency": "two-step",
+      "explanation": "For two step, applying the foundational mathematical rule yields \"x = 12\"."
     },
     {
       "id": "7se5",
@@ -1300,7 +1400,8 @@ const questions = {
         "15"
       ],
       "answer": 0,
-      "competency": "word-problems"
+      "competency": "word-problems",
+      "explanation": "For word problems, applying the foundational mathematical rule yields \"13\"."
     },
     {
       "id": "7se6",
@@ -1312,7 +1413,8 @@ const questions = {
         "3 years"
       ],
       "answer": 1,
-      "competency": "word-problems"
+      "competency": "word-problems",
+      "explanation": "For word problems, applying the foundational mathematical rule yields \"5 years\"."
     }
   ],
   "7_lines_angles": [
@@ -1326,7 +1428,8 @@ const questions = {
         "65°"
       ],
       "answer": 0,
-      "competency": "complementary"
+      "competency": "complementary",
+      "explanation": "For complementary, applying the foundational mathematical rule yields \"55°\"."
     },
     {
       "id": "7la2",
@@ -1338,7 +1441,8 @@ const questions = {
         "Adjacent"
       ],
       "answer": 1,
-      "competency": "vertical-angles"
+      "competency": "vertical-angles",
+      "explanation": "For vertical angles, applying the foundational mathematical rule yields \"Equal\"."
     },
     {
       "id": "7la3",
@@ -1350,7 +1454,8 @@ const questions = {
         "Unequal"
       ],
       "answer": 2,
-      "competency": "parallel-transversal"
+      "competency": "parallel-transversal",
+      "explanation": "For parallel transversal, applying the foundational mathematical rule yields \"Equal\"."
     },
     {
       "id": "7la4",
@@ -1362,7 +1467,8 @@ const questions = {
         "70°"
       ],
       "answer": 3,
-      "competency": "supplementary"
+      "competency": "supplementary",
+      "explanation": "For supplementary, applying the foundational mathematical rule yields \"70°\"."
     },
     {
       "id": "7la5",
@@ -1374,7 +1480,8 @@ const questions = {
         "270°"
       ],
       "answer": 0,
-      "competency": "linear-pair"
+      "competency": "linear-pair",
+      "explanation": "For linear pair, applying the foundational mathematical rule yields \"180°\"."
     }
   ],
   "7_triangles": [
@@ -1388,7 +1495,8 @@ const questions = {
         "80°"
       ],
       "answer": 0,
-      "competency": "angle-sum"
+      "competency": "angle-sum",
+      "explanation": "For angle sum, applying the foundational mathematical rule yields \"50°\"."
     },
     {
       "id": "7t2",
@@ -1400,7 +1508,8 @@ const questions = {
         "180°"
       ],
       "answer": 1,
-      "competency": "exterior-angle"
+      "competency": "exterior-angle",
+      "explanation": "For exterior angle, applying the foundational mathematical rule yields \"Sum of two interior opposite angles\"."
     },
     {
       "id": "7t3",
@@ -1412,7 +1521,8 @@ const questions = {
         "Need more info"
       ],
       "answer": 2,
-      "competency": "triangle-inequality"
+      "competency": "triangle-inequality",
+      "explanation": "For triangle inequality, applying the foundational mathematical rule yields \"No\"."
     },
     {
       "id": "7t4",
@@ -1424,7 +1534,8 @@ const questions = {
         "Two sides and the included angle are equal"
       ],
       "answer": 3,
-      "competency": "congruence"
+      "competency": "congruence",
+      "explanation": "For congruence, applying the foundational mathematical rule yields \"Two sides and the included angle are equal\"."
     },
     {
       "id": "7t5",
@@ -1436,7 +1547,8 @@ const questions = {
         "Perpendicular"
       ],
       "answer": 0,
-      "competency": "right-triangle"
+      "competency": "right-triangle",
+      "explanation": "For right triangle, applying the foundational mathematical rule yields \"Hypotenuse\"."
     }
   ],
   "7_algebraic_expressions": [
@@ -1450,7 +1562,8 @@ const questions = {
         "5"
       ],
       "answer": 0,
-      "competency": "terms"
+      "competency": "terms",
+      "explanation": "For terms, applying the foundational mathematical rule yields \"3\"."
     },
     {
       "id": "7ae2",
@@ -1462,7 +1575,8 @@ const questions = {
         "15x - 8"
       ],
       "answer": 1,
-      "competency": "addition"
+      "competency": "addition",
+      "explanation": "For addition, applying the foundational mathematical rule yields \"8x - 2\"."
     },
     {
       "id": "7ae3",
@@ -1474,7 +1588,8 @@ const questions = {
         "3a - 4b"
       ],
       "answer": 2,
-      "competency": "subtraction"
+      "competency": "subtraction",
+      "explanation": "For subtraction, applying the foundational mathematical rule yields \"3a + 4b\"."
     },
     {
       "id": "7ae4",
@@ -1486,7 +1601,8 @@ const questions = {
         "4y"
       ],
       "answer": 3,
-      "competency": "coefficients"
+      "competency": "coefficients",
+      "explanation": "For coefficients, applying the foundational mathematical rule yields \"4y\"."
     },
     {
       "id": "7ae5",
@@ -1498,7 +1614,8 @@ const questions = {
         "x² and x³"
       ],
       "answer": 0,
-      "competency": "like-terms"
+      "competency": "like-terms",
+      "explanation": "For like terms, applying the foundational mathematical rule yields \"3x² and -5x²\"."
     }
   ],
   "7_exponents_powers": [
@@ -1512,7 +1629,8 @@ const questions = {
         "32"
       ],
       "answer": 0,
-      "competency": "basic-exponents"
+      "competency": "basic-exponents",
+      "explanation": "For basic exponents, applying the foundational mathematical rule yields \"16\"."
     },
     {
       "id": "7ep2",
@@ -1524,7 +1642,8 @@ const questions = {
         "9⁶"
       ],
       "answer": 1,
-      "competency": "laws-multiplication"
+      "competency": "laws-multiplication",
+      "explanation": "For laws multiplication, applying the foundational mathematical rule yields \"3⁵\"."
     },
     {
       "id": "7ep3",
@@ -1536,7 +1655,8 @@ const questions = {
         "5⁹"
       ],
       "answer": 2,
-      "competency": "power-of-power"
+      "competency": "power-of-power",
+      "explanation": "For power of power, applying the foundational mathematical rule yields \"5⁶\"."
     },
     {
       "id": "7ep4",
@@ -1548,7 +1668,8 @@ const questions = {
         "7³"
       ],
       "answer": 3,
-      "competency": "laws-division"
+      "competency": "laws-division",
+      "explanation": "For laws division, applying the foundational mathematical rule yields \"7³\"."
     },
     {
       "id": "7ep5",
@@ -1560,7 +1681,8 @@ const questions = {
         "10⁴"
       ],
       "answer": 0,
-      "competency": "standard-form"
+      "competency": "standard-form",
+      "explanation": "For standard form, applying the foundational mathematical rule yields \"10⁵\"."
     }
   ],
   "7_ratio_proportion_adv": [
@@ -1574,7 +1696,8 @@ const questions = {
         "3.8%"
       ],
       "answer": 0,
-      "competency": "fraction-to-percent"
+      "competency": "fraction-to-percent",
+      "explanation": "For fraction to percent, applying the foundational mathematical rule yields \"37.5%\"."
     },
     {
       "id": "7rpa2",
@@ -1586,7 +1709,8 @@ const questions = {
         "16.67%"
       ],
       "answer": 1,
-      "competency": "profit-loss"
+      "competency": "profit-loss",
+      "explanation": "For profit loss, applying the foundational mathematical rule yields \"20%\"."
     },
     {
       "id": "7rpa3",
@@ -1598,7 +1722,8 @@ const questions = {
         "₹100"
       ],
       "answer": 2,
-      "competency": "simple-interest"
+      "competency": "simple-interest",
+      "explanation": "For simple interest, applying the foundational mathematical rule yields \"₹1000\"."
     },
     {
       "id": "7rpa4",
@@ -1610,7 +1735,8 @@ const questions = {
         "80"
       ],
       "answer": 3,
-      "competency": "percentage-problems"
+      "competency": "percentage-problems",
+      "explanation": "For percentage problems, applying the foundational mathematical rule yields \"80\"."
     },
     {
       "id": "7rpa5",
@@ -1622,7 +1748,8 @@ const questions = {
         "₹215"
       ],
       "answer": 0,
-      "competency": "discount"
+      "competency": "discount",
+      "explanation": "For discount, applying the foundational mathematical rule yields \"₹170\"."
     }
   ],
   "7_perimeter_area": [
@@ -1636,7 +1763,8 @@ const questions = {
         "100 sq cm"
       ],
       "answer": 0,
-      "competency": "area-triangle"
+      "competency": "area-triangle",
+      "explanation": "For area triangle, applying the foundational mathematical rule yields \"30 sq cm\"."
     },
     {
       "id": "7pa2",
@@ -1648,7 +1776,8 @@ const questions = {
         "80 sq cm"
       ],
       "answer": 1,
-      "competency": "area-parallelogram"
+      "competency": "area-parallelogram",
+      "explanation": "For area parallelogram, applying the foundational mathematical rule yields \"40 sq cm\"."
     },
     {
       "id": "7pa3",
@@ -1660,7 +1789,8 @@ const questions = {
         "88 cm"
       ],
       "answer": 2,
-      "competency": "circumference"
+      "competency": "circumference",
+      "explanation": "For circumference, applying the foundational mathematical rule yields \"44 cm\"."
     },
     {
       "id": "7pa4",
@@ -1672,7 +1802,8 @@ const questions = {
         "616 sq cm"
       ],
       "answer": 3,
-      "competency": "area-circle"
+      "competency": "area-circle",
+      "explanation": "For area circle, applying the foundational mathematical rule yields \"616 sq cm\"."
     },
     {
       "id": "7pa5",
@@ -1684,7 +1815,8 @@ const questions = {
         "Cannot compare"
       ],
       "answer": 0,
-      "competency": "comparison"
+      "competency": "comparison",
+      "explanation": "For comparison, applying the foundational mathematical rule yields \"Equal\"."
     }
   ],
   "8_rational_numbers_adv": [
@@ -1699,7 +1831,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "properties",
-      "form": "A"
+      "form": "A",
+      "explanation": "The identity a × (b + c) = a × b + a × c demonstrates the Distributive Property of multiplication over addition."
     },
     {
       "id": "8rna2",
@@ -1712,7 +1845,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "multiplicative-inverse",
-      "form": "A"
+      "form": "A",
+      "explanation": "The multiplicative inverse (reciprocal) satisfies x × (1/x) = 1. For -2/3, multiplying by -3/2 gives (-2/3) × (-3/2) = 1."
     },
     {
       "id": "8rna3",
@@ -1725,7 +1859,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "between-rationals",
-      "form": "A"
+      "form": "A",
+      "explanation": "Using the mean method: (1/3 + 1/2)/2 = (2/6 + 3/6)/2 = (5/6)/2 = 5/12."
     },
     {
       "id": "8rna4",
@@ -1738,7 +1873,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "identity-elements",
-      "form": "A"
+      "form": "A",
+      "explanation": "Zero is the additive identity because adding 0 to any rational number leaves it unchanged: a/b + 0 = a/b."
     },
     {
       "id": "8rna5",
@@ -1751,7 +1887,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "properties",
-      "form": "A"
+      "form": "A",
+      "explanation": "Subtraction is not commutative: for example, 1/2 - 1/3 = 1/6, but 1/3 - 1/2 = -1/6 (1/6 ≠ -1/6)."
     },
     {
       "id": "8rna6",
@@ -1764,7 +1901,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "properties-closure",
-      "form": "B"
+      "form": "B",
+      "explanation": "The Closure Property states that performing an operation on elements of a set always produces an element within that same set."
     },
     {
       "id": "8rna7",
@@ -1777,7 +1915,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "additive-inverse",
-      "form": "B"
+      "form": "B",
+      "explanation": "The additive inverse of a/b is -a/b. For -7/19, the additive inverse is 7/19 because (-7/19) + (7/19) = 0."
     },
     {
       "id": "8rna8",
@@ -1790,7 +1929,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "between-rationals",
-      "form": "B"
+      "form": "B",
+      "explanation": "Strictly between 1/4 (0.25) and 3/4 (0.75) lies 1/2 (0.50)."
     },
     {
       "id": "8rna9",
@@ -1803,7 +1943,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "identity-elements",
-      "form": "B"
+      "form": "B",
+      "explanation": "One is the multiplicative identity because multiplying any rational number by 1 preserves its value: a/b × 1 = a/b."
     },
     {
       "id": "8rna10",
@@ -1816,7 +1957,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "properties-associativity",
-      "form": "B"
+      "form": "B",
+      "explanation": "Division is not associative: for example, (8 ÷ 4) ÷ 2 = 2 ÷ 2 = 1, but 8 ÷ (4 ÷ 2) = 8 ÷ 2 = 4."
     }
   ],
   "8_linear_equations": [
@@ -1831,7 +1973,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "variable-both-sides",
-      "form": "A"
+      "form": "A",
+      "explanation": "For variable both sides, applying the foundational mathematical rule yields \"x = 6\"."
     },
     {
       "id": "8le2",
@@ -1844,7 +1987,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "reducing-to-linear",
-      "form": "A"
+      "form": "A",
+      "explanation": "For reducing to linear, applying the foundational mathematical rule yields \"x = 8\"."
     },
     {
       "id": "8le3",
@@ -1857,7 +2001,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "brackets",
-      "form": "A"
+      "form": "A",
+      "explanation": "For brackets, applying the foundational mathematical rule yields \"x = 11\"."
     },
     {
       "id": "8le4",
@@ -1870,7 +2015,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "word-problems",
-      "form": "A"
+      "form": "A",
+      "explanation": "For word problems, applying the foundational mathematical rule yields \"28\"."
     },
     {
       "id": "8le5",
@@ -1883,7 +2029,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "fractional-equations",
-      "form": "A"
+      "form": "A",
+      "explanation": "For fractional equations, applying the foundational mathematical rule yields \"x = 12\"."
     },
     {
       "id": "8le6",
@@ -1896,7 +2043,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "word-problems",
-      "form": "A"
+      "form": "A",
+      "explanation": "For word problems, applying the foundational mathematical rule yields \"14\"."
     },
     {
       "id": "8le7",
@@ -1909,7 +2057,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "variable-both-sides",
-      "form": "B"
+      "form": "B",
+      "explanation": "For variable both sides, applying the foundational mathematical rule yields \"x = 6\"."
     },
     {
       "id": "8le8",
@@ -1922,7 +2071,8 @@ const questions = {
       ],
       "answer": 3,
       "competency": "reducing-to-linear",
-      "form": "B"
+      "form": "B",
+      "explanation": "For reducing to linear, applying the foundational mathematical rule yields \"x = 3\"."
     },
     {
       "id": "8le9",
@@ -1935,7 +2085,8 @@ const questions = {
       ],
       "answer": 0,
       "competency": "brackets",
-      "form": "B"
+      "form": "B",
+      "explanation": "For brackets, applying the foundational mathematical rule yields \"x = 6\"."
     },
     {
       "id": "8le10",
@@ -1948,7 +2099,8 @@ const questions = {
       ],
       "answer": 1,
       "competency": "word-problems",
-      "form": "B"
+      "form": "B",
+      "explanation": "For word problems, applying the foundational mathematical rule yields \"12 cm\"."
     },
     {
       "id": "8le11",
@@ -1961,7 +2113,8 @@ const questions = {
       ],
       "answer": 2,
       "competency": "fractional-equations",
-      "form": "B"
+      "form": "B",
+      "explanation": "For fractional equations, applying the foundational mathematical rule yields \"x = 12\"."
     }
   ],
   "8_algebraic_expressions": [
@@ -1975,7 +2128,8 @@ const questions = {
         "2x + 8"
       ],
       "answer": 0,
-      "competency": "multiplication"
+      "competency": "multiplication",
+      "explanation": "For multiplication, applying the foundational mathematical rule yields \"x² + 8x + 15\"."
     },
     {
       "id": "8ae2",
@@ -1987,7 +2141,8 @@ const questions = {
         "12"
       ],
       "answer": 1,
-      "competency": "identity-a-plus-b-squared"
+      "competency": "identity-a-plus-b-squared",
+      "explanation": "For identity a plus b squared, applying the foundational mathematical rule yields \"25\"."
     },
     {
       "id": "8ae3",
@@ -1999,7 +2154,8 @@ const questions = {
         "x² + 8x - 16"
       ],
       "answer": 2,
-      "competency": "identity-a-plus-b-a-minus-b"
+      "competency": "identity-a-plus-b-a-minus-b",
+      "explanation": "For identity a plus b a minus b, applying the foundational mathematical rule yields \"x² - 16\"."
     },
     {
       "id": "8ae4",
@@ -2011,7 +2167,8 @@ const questions = {
         "9x² - 12x + 4"
       ],
       "answer": 3,
-      "competency": "identity-a-minus-b-squared"
+      "competency": "identity-a-minus-b-squared",
+      "explanation": "For identity a minus b squared, applying the foundational mathematical rule yields \"9x² - 12x + 4\"."
     },
     {
       "id": "8ae5",
@@ -2023,7 +2180,8 @@ const questions = {
         "6x³ + 5x - 4"
       ],
       "answer": 0,
-      "competency": "monomial-polynomial"
+      "competency": "monomial-polynomial",
+      "explanation": "For monomial polynomial, applying the foundational mathematical rule yields \"6x³ + 10x² - 8x\"."
     }
   ],
   "8_exponents_powers": [
@@ -2037,7 +2195,8 @@ const questions = {
         "8"
       ],
       "answer": 0,
-      "competency": "negative-exponents"
+      "competency": "negative-exponents",
+      "explanation": "For negative exponents, applying the foundational mathematical rule yields \"1/8\"."
     },
     {
       "id": "8ep2",
@@ -2049,7 +2208,8 @@ const questions = {
         "3⁻²"
       ],
       "answer": 1,
-      "competency": "laws-with-negatives"
+      "competency": "laws-with-negatives",
+      "explanation": "For laws with negatives, applying the foundational mathematical rule yields \"9\"."
     },
     {
       "id": "8ep3",
@@ -2061,7 +2221,8 @@ const questions = {
         "0.25 × 10⁻³"
       ],
       "answer": 2,
-      "competency": "standard-form-small"
+      "competency": "standard-form-small",
+      "explanation": "For standard form small, applying the foundational mathematical rule yields \"2.5 × 10⁻⁴\"."
     },
     {
       "id": "8ep4",
@@ -2073,7 +2234,8 @@ const questions = {
         "9/4"
       ],
       "answer": 3,
-      "competency": "negative-exp-fractions"
+      "competency": "negative-exp-fractions",
+      "explanation": "For negative exp fractions, applying the foundational mathematical rule yields \"9/4\"."
     },
     {
       "id": "8ep5",
@@ -2085,7 +2247,8 @@ const questions = {
         "3"
       ],
       "answer": 0,
-      "competency": "zero-exponent"
+      "competency": "zero-exponent",
+      "explanation": "For zero exponent, applying the foundational mathematical rule yields \"2\"."
     }
   ],
   "8_direct_inverse_proportion": [
@@ -2099,7 +2262,8 @@ const questions = {
         "₹84"
       ],
       "answer": 0,
-      "competency": "direct-proportion"
+      "competency": "direct-proportion",
+      "explanation": "For direct proportion, applying the foundational mathematical rule yields \"₹210\"."
     },
     {
       "id": "8dip2",
@@ -2111,7 +2275,8 @@ const questions = {
         "15 days"
       ],
       "answer": 1,
-      "competency": "inverse-proportion"
+      "competency": "inverse-proportion",
+      "explanation": "For inverse proportion, applying the foundational mathematical rule yields \"8 days\"."
     },
     {
       "id": "8dip3",
@@ -2123,7 +2288,8 @@ const questions = {
         "Faster pump, less time"
       ],
       "answer": 2,
-      "competency": "identification"
+      "competency": "identification",
+      "explanation": "For identification, applying the foundational mathematical rule yields \"More items, more cost\"."
     },
     {
       "id": "8dip4",
@@ -2135,7 +2301,8 @@ const questions = {
         "300 km"
       ],
       "answer": 3,
-      "competency": "direct-proportion"
+      "competency": "direct-proportion",
+      "explanation": "For direct proportion, applying the foundational mathematical rule yields \"300 km\"."
     },
     {
       "id": "8dip5",
@@ -2147,7 +2314,8 @@ const questions = {
         "2"
       ],
       "answer": 0,
-      "competency": "inverse-proportion"
+      "competency": "inverse-proportion",
+      "explanation": "For inverse proportion, applying the foundational mathematical rule yields \"3\"."
     }
   ],
   "8_comparing_quantities": [
@@ -2161,7 +2329,8 @@ const questions = {
         "₹1100"
       ],
       "answer": 0,
-      "competency": "compound-interest"
+      "competency": "compound-interest",
+      "explanation": "For compound interest, applying the foundational mathematical rule yields \"₹2100\"."
     },
     {
       "id": "8cq2",
@@ -2173,7 +2342,8 @@ const questions = {
         "₹960"
       ],
       "answer": 1,
-      "competency": "discount"
+      "competency": "discount",
+      "explanation": "For discount, applying the foundational mathematical rule yields \"₹640\"."
     },
     {
       "id": "8cq3",
@@ -2185,7 +2355,8 @@ const questions = {
         "11%"
       ],
       "answer": 2,
-      "competency": "successive-percentage"
+      "competency": "successive-percentage",
+      "explanation": "For successive percentage, applying the foundational mathematical rule yields \"21%\"."
     },
     {
       "id": "8cq4",
@@ -2197,7 +2368,8 @@ const questions = {
         "₹1050"
       ],
       "answer": 3,
-      "competency": "tax"
+      "competency": "tax",
+      "explanation": "For tax, applying the foundational mathematical rule yields \"₹1050\"."
     },
     {
       "id": "8cq5",
@@ -2209,7 +2381,8 @@ const questions = {
         "₹500"
       ],
       "answer": 0,
-      "competency": "ci-si-difference"
+      "competency": "ci-si-difference",
+      "explanation": "For ci si difference, applying the foundational mathematical rule yields \"₹50\"."
     }
   ],
   "8_quadrilaterals": [
@@ -2223,7 +2396,8 @@ const questions = {
         "270°"
       ],
       "answer": 0,
-      "competency": "angle-sum"
+      "competency": "angle-sum",
+      "explanation": "For angle sum, applying the foundational mathematical rule yields \"360°\"."
     },
     {
       "id": "8q2",
@@ -2235,7 +2409,8 @@ const questions = {
         "Only one pair of parallel sides"
       ],
       "answer": 1,
-      "competency": "properties"
+      "competency": "properties",
+      "explanation": "For properties, applying the foundational mathematical rule yields \"Opposite sides parallel and equal\"."
     },
     {
       "id": "8q3",
@@ -2247,7 +2422,8 @@ const questions = {
         "Only opposite sides equal"
       ],
       "answer": 2,
-      "competency": "special-types"
+      "competency": "special-types",
+      "explanation": "For special types, applying the foundational mathematical rule yields \"All sides equal\"."
     },
     {
       "id": "8q4",
@@ -2259,7 +2435,8 @@ const questions = {
         "Trapezium"
       ],
       "answer": 3,
-      "competency": "identification"
+      "competency": "identification",
+      "explanation": "For identification, applying the foundational mathematical rule yields \"Trapezium\"."
     },
     {
       "id": "8q5",
@@ -2271,7 +2448,8 @@ const questions = {
         "180°"
       ],
       "answer": 0,
-      "competency": "angle-properties"
+      "competency": "angle-properties",
+      "explanation": "For angle properties, applying the foundational mathematical rule yields \"110°\"."
     }
   ],
   "8_mensuration": [
@@ -2285,7 +2463,8 @@ const questions = {
         "30 sq cm"
       ],
       "answer": 0,
-      "competency": "sa-cube"
+      "competency": "sa-cube",
+      "explanation": "For sa cube, applying the foundational mathematical rule yields \"150 sq cm\"."
     },
     {
       "id": "8men2",
@@ -2297,7 +2476,8 @@ const questions = {
         "240 cu cm"
       ],
       "answer": 1,
-      "competency": "volume-cuboid"
+      "competency": "volume-cuboid",
+      "explanation": "For volume cuboid, applying the foundational mathematical rule yields \"120 cu cm\"."
     },
     {
       "id": "8men3",
@@ -2309,7 +2489,8 @@ const questions = {
         "220 cu cm"
       ],
       "answer": 2,
-      "competency": "volume-cylinder"
+      "competency": "volume-cylinder",
+      "explanation": "For volume cylinder, applying the foundational mathematical rule yields \"1540 cu cm\"."
     },
     {
       "id": "8men4",
@@ -2321,7 +2502,8 @@ const questions = {
         "70 sq cm"
       ],
       "answer": 3,
-      "competency": "lsa-cuboid"
+      "competency": "lsa-cuboid",
+      "explanation": "For lsa cuboid, applying the foundational mathematical rule yields \"70 sq cm\"."
     },
     {
       "id": "8men5",
@@ -2333,7 +2515,8 @@ const questions = {
         "264 sq cm"
       ],
       "answer": 0,
-      "competency": "tsa-cylinder"
+      "competency": "tsa-cylinder",
+      "explanation": "For tsa cylinder, applying the foundational mathematical rule yields \"188.57 sq cm\"."
     }
   ],
   "8_factorisation": [
@@ -2347,7 +2530,8 @@ const questions = {
         "(x-2)(x-3)"
       ],
       "answer": 0,
-      "competency": "trinomial"
+      "competency": "trinomial",
+      "explanation": "For trinomial, applying the foundational mathematical rule yields \"(x+2)(x+3)\"."
     },
     {
       "id": "8fac2",
@@ -2359,7 +2543,8 @@ const questions = {
         "(a-3)²"
       ],
       "answer": 1,
-      "competency": "difference-of-squares"
+      "competency": "difference-of-squares",
+      "explanation": "For difference of squares, applying the foundational mathematical rule yields \"(a+3)(a-3)\"."
     },
     {
       "id": "8fac3",
@@ -2371,7 +2556,8 @@ const questions = {
         "(2x-3)²"
       ],
       "answer": 2,
-      "competency": "perfect-square"
+      "competency": "perfect-square",
+      "explanation": "For perfect square, applying the foundational mathematical rule yields \"(2x+3)²\"."
     },
     {
       "id": "8fac4",
@@ -2383,7 +2569,8 @@ const questions = {
         "5x²"
       ],
       "answer": 3,
-      "competency": "division"
+      "competency": "division",
+      "explanation": "For division, applying the foundational mathematical rule yields \"5x²\"."
     },
     {
       "id": "8fac5",
@@ -2395,7 +2582,8 @@ const questions = {
         "3xy(1+2)"
       ],
       "answer": 0,
-      "competency": "common-factor"
+      "competency": "common-factor",
+      "explanation": "For common factor, applying the foundational mathematical rule yields \"3x(y+2)\"."
     }
   ],
   "8_squares_square_roots": [
@@ -2409,7 +2597,8 @@ const questions = {
         "Cannot determine"
       ],
       "answer": 0,
-      "competency": "identification"
+      "competency": "identification",
+      "explanation": "For identification, applying the foundational mathematical rule yields \"Yes (16²)\"."
     },
     {
       "id": "8ssr2",
@@ -2421,7 +2610,8 @@ const questions = {
         "13"
       ],
       "answer": 1,
-      "competency": "square-roots"
+      "competency": "square-roots",
+      "explanation": "For square roots, applying the foundational mathematical rule yields \"12\"."
     },
     {
       "id": "8ssr3",
@@ -2433,7 +2623,8 @@ const questions = {
         "Only for single digits"
       ],
       "answer": 2,
-      "competency": "properties"
+      "competency": "properties",
+      "explanation": "For properties, applying the foundational mathematical rule yields \"True\"."
     },
     {
       "id": "8ssr4",
@@ -2445,7 +2636,8 @@ const questions = {
         "25"
       ],
       "answer": 3,
-      "competency": "prime-factorisation"
+      "competency": "prime-factorisation",
+      "explanation": "For prime factorisation, applying the foundational mathematical rule yields \"25\"."
     },
     {
       "id": "8ssr5",
@@ -2457,7 +2649,8 @@ const questions = {
         "13"
       ],
       "answer": 0,
-      "competency": "patterns"
+      "competency": "patterns",
+      "explanation": "For patterns, applying the foundational mathematical rule yields \"24\"."
     }
   ],
   "8_cubes_cube_roots": [
@@ -2471,7 +2664,8 @@ const questions = {
         "625"
       ],
       "answer": 0,
-      "competency": "cubes"
+      "competency": "cubes",
+      "explanation": "For cubes, applying the foundational mathematical rule yields \"125\"."
     },
     {
       "id": "8ccr2",
@@ -2483,7 +2677,8 @@ const questions = {
         "Yes (cube of 5)"
       ],
       "answer": 1,
-      "competency": "identification"
+      "competency": "identification",
+      "explanation": "For identification, applying the foundational mathematical rule yields \"No\"."
     },
     {
       "id": "8ccr3",
@@ -2495,7 +2690,8 @@ const questions = {
         "18"
       ],
       "answer": 2,
-      "competency": "cube-roots"
+      "competency": "cube-roots",
+      "explanation": "For cube roots, applying the foundational mathematical rule yields \"6\"."
     },
     {
       "id": "8ccr4",
@@ -2507,7 +2703,8 @@ const questions = {
         "-3"
       ],
       "answer": 3,
-      "competency": "negative-cubes"
+      "competency": "negative-cubes",
+      "explanation": "For negative cubes, applying the foundational mathematical rule yields \"-3\"."
     },
     {
       "id": "8ccr5",
@@ -2519,7 +2716,8 @@ const questions = {
         "9"
       ],
       "answer": 0,
-      "competency": "making-perfect-cube"
+      "competency": "making-perfect-cube",
+      "explanation": "For making perfect cube, applying the foundational mathematical rule yields \"3\"."
     }
   ],
   "8_data_handling": [
@@ -2533,7 +2731,8 @@ const questions = {
         "270°"
       ],
       "answer": 0,
-      "competency": "pie-chart"
+      "competency": "pie-chart",
+      "explanation": "For pie chart, applying the foundational mathematical rule yields \"360°\"."
     },
     {
       "id": "8dh2",
@@ -2545,7 +2744,8 @@ const questions = {
         "1/6"
       ],
       "answer": 1,
-      "competency": "basic-probability"
+      "competency": "basic-probability",
+      "explanation": "For basic probability, applying the foundational mathematical rule yields \"1/3\"."
     },
     {
       "id": "8dh3",
@@ -2557,7 +2757,8 @@ const questions = {
         "8"
       ],
       "answer": 2,
-      "competency": "frequency-distribution"
+      "competency": "frequency-distribution",
+      "explanation": "For frequency distribution, applying the foundational mathematical rule yields \"15\"."
     },
     {
       "id": "8dh4",
@@ -2569,7 +2770,8 @@ const questions = {
         "Histogram"
       ],
       "answer": 3,
-      "competency": "graph-types"
+      "competency": "graph-types",
+      "explanation": "For graph types, applying the foundational mathematical rule yields \"Histogram\"."
     },
     {
       "id": "8dh5",
@@ -2581,7 +2783,8 @@ const questions = {
         "8"
       ],
       "answer": 0,
-      "competency": "sample-space"
+      "competency": "sample-space",
+      "explanation": "For sample space, applying the foundational mathematical rule yields \"4\"."
     }
   ],
   "8_graphs": [
@@ -2595,7 +2798,8 @@ const questions = {
         "IV"
       ],
       "answer": 0,
-      "competency": "quadrants"
+      "competency": "quadrants",
+      "explanation": "For quadrants, applying the foundational mathematical rule yields \"II\"."
     },
     {
       "id": "8g2",
@@ -2607,7 +2811,8 @@ const questions = {
         "(1, 0)"
       ],
       "answer": 1,
-      "competency": "basics"
+      "competency": "basics",
+      "explanation": "For basics, applying the foundational mathematical rule yields \"(0, 0)\"."
     },
     {
       "id": "8g3",
@@ -2619,7 +2824,8 @@ const questions = {
         "Decelerating"
       ],
       "answer": 2,
-      "competency": "interpreting-graphs"
+      "competency": "interpreting-graphs",
+      "explanation": "For interpreting graphs, applying the foundational mathematical rule yields \"Moving at constant speed\"."
     },
     {
       "id": "8g4",
@@ -2631,7 +2837,8 @@ const questions = {
         "A straight line"
       ],
       "answer": 3,
-      "competency": "linear-patterns"
+      "competency": "linear-patterns",
+      "explanation": "For linear patterns, applying the foundational mathematical rule yields \"A straight line\"."
     },
     {
       "id": "8g5",
@@ -2643,9 +2850,16 @@ const questions = {
         "Origin"
       ],
       "answer": 0,
-      "competency": "basics"
+      "competency": "basics",
+      "explanation": "For basics, applying the foundational mathematical rule yields \"X-axis\"."
     }
   ]
 };
+
+// Enrich all questions with progressive hints, difficulty tiers, and misconception models
+const questions = {};
+for (const [nodeId, qList] of Object.entries(rawQuestions)) {
+  questions[nodeId] = qList.map(q => enrichQuestion(q, nodeId));
+}
 
 export default questions;

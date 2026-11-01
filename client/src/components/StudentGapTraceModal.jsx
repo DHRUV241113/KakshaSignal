@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import SafeMarkdown from './SafeMarkdown';
 
 export default function StudentGapTraceModal({ student, gapNode, traceData, onClose, onActionSuccess }) {
   const { user, t } = useApp();
@@ -88,7 +89,7 @@ export default function StudentGapTraceModal({ student, gapNode, traceData, onCl
 
           {/* Diagnostic Assessment Evidence */}
           {traceData?.diagnosticEvidence && (
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
@@ -108,14 +109,49 @@ export default function StudentGapTraceModal({ student, gapNode, traceData, onCl
                       ? `Score: ${traceData.diagnosticEvidence.percentage}% (${traceData.diagnosticEvidence.correctAnswers}/${traceData.diagnosticEvidence.totalQuestions} correct)`
                       : 'Status: Deficit Seeded'}
                   </span>
+                  {traceData.diagnosticEvidence.confidence && traceData.diagnosticEvidence.confidence !== 'none' && (
+                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${
+                      traceData.diagnosticEvidence.confidence === 'confirmed'
+                        ? 'bg-rose-100 text-rose-900 border-rose-300'
+                        : 'bg-amber-100 text-amber-900 border-amber-300'
+                    }`}>
+                      {traceData.diagnosticEvidence.confidence === 'confirmed'
+                        ? '⚠️ Confirmed Deficit'
+                        : '🔍 Suspected Gap (1 Error)'}
+                    </span>
+                  )}
                   <span className="text-xs text-slate-500">
                     Threshold: <strong>70%</strong>
                   </span>
                 </div>
               </div>
-              <p className="text-xs text-slate-600 mt-2">
-                Result below mastery threshold (&lt;70%) automatically triggered the backward prerequisite graph traversal to locate foundational deficits.
-              </p>
+              
+              {traceData.diagnosticEvidence.evidenceRationale && (
+                <div className="text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 leading-relaxed">
+                  <strong className="text-slate-900">Assessment Evidence Weighting:</strong> {traceData.diagnosticEvidence.evidenceRationale}
+                </div>
+              )}
+
+              {/* Detected Misconceptions */}
+              {Array.isArray(traceData.diagnosticEvidence.identifiedMisconceptions) && traceData.diagnosticEvidence.identifiedMisconceptions.length > 0 && (
+                <div className="pt-2 border-t border-slate-200/60 space-y-1.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                    Detected Student Misconceptions &amp; Distractor Analysis:
+                  </span>
+                  {traceData.diagnosticEvidence.identifiedMisconceptions.map((m, idx) => (
+                    <div key={idx} className="p-2.5 bg-amber-50/80 rounded-lg border border-amber-200 text-xs text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                      <div>
+                        <strong className="text-amber-900 font-bold">{m.label}:</strong> {m.misconception}
+                      </div>
+                      {m.prerequisiteLabel && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-100 text-purple-900 border border-purple-200 shrink-0">
+                          Prereq: {m.prerequisiteLabel} (Gr {m.prerequisiteClass})
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -190,12 +226,14 @@ export default function StudentGapTraceModal({ student, gapNode, traceData, onCl
                             )}
                           </div>
                           <div className="text-xs text-slate-500 mt-0.5">
-                            {item.description}
+                            <SafeMarkdown content={item.description} />
                           </div>
                           {item.rationale && (
                             <div className="mt-1.5 p-2 rounded-lg bg-emerald-50/60 border border-emerald-200/60 text-[11px] text-emerald-900 flex items-start space-x-1.5">
                               <span className="font-bold text-emerald-700 shrink-0">Why required:</span>
-                              <span className="leading-tight">{item.rationale}</span>
+                              <div className="leading-tight">
+                                <SafeMarkdown content={item.rationale} />
+                              </div>
                             </div>
                           )}
                         </div>
@@ -236,7 +274,7 @@ export default function StudentGapTraceModal({ student, gapNode, traceData, onCl
                         </div>
                         {item.edgeToNext.rationale && (
                           <div className="text-slate-600 text-[11px] italic leading-tight pt-0.5">
-                            ↳ {item.edgeToNext.rationale}
+                            ↳ <SafeMarkdown content={item.edgeToNext.rationale} />
                           </div>
                         )}
                       </div>

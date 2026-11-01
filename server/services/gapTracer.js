@@ -5,6 +5,8 @@
 
 import knowledgeGraph, { getPrerequisites, getNode, getEdgeMetadata } from '../data/knowledgeGraph.js';
 import { getDb } from '../db/schema.js';
+import questions from '../data/questions.js';
+import { analyzeMisconception as analyzeQuestionMisconception } from '../data/questionEnhancements.js';
 
 // Pedagogical rationale mapping based on NCERT Mathematics curriculum dependencies
 const CURRICULAR_RATIONALE = {
@@ -39,9 +41,10 @@ const CURRICULAR_RATIONALE = {
  *
  * @param {number} studentId - The student's ID
  * @param {string} failedNodeId - The node ID where the student failed the diagnostic
+ * @param {Object} [options] - Optional assessment context ({ errorCount, answers })
  * @returns {Object} - { rootGaps: [...], traceTree: {...}, recommendedPath: [...], diagnosticEvidence: {...} }
  */
-export function traceGap(studentId, failedNodeId) {
+export function traceGap(studentId, failedNodeId, options = {}) {
   const targetNode = getNode(failedNodeId);
   if (!targetNode) {
     return { error: `Node '${failedNodeId}' not found in knowledge graph` };
@@ -69,17 +72,75 @@ export function traceGap(studentId, failedNodeId) {
     ? targetMastery.diagnostic_score
     : (recentAttempt?.score ?? null);
 
+  // Compute error count and evidence weighting to avoid declaring confirmed weakness from a single fluke
+  let errorCount = 2; // Default to confirmed threshold if unassessed or general graph trace
+  if (options.errorCount !== undefined) {
+    errorCount = options.errorCount;
+  } else if (options.answers && Array.isArray(options.answers)) {
+    const qList = questions[failedNodeId] || [];
+    errorCount = options.answers.filter(ans => {
+      if (typeof ans.isCorrect === 'boolean') return !ans.isCorrect;
+      const q = qList.find(item => item.id === ans.questionId);
+      return q ? q.answer !== ans.selectedOption : true;
+    }).length;
+  } else if (recentAttempt) {
+    const totalQ = recentAttempt.total_questions || 5;
+    const correctQ = recentAttempt.correct_answers !== null && recentAttempt.correct_answers !== undefined
+      ? recentAttempt.correct_answers
+      : Math.round((recentAttempt.score || 0) * totalQ);
+    errorCount = Math.max(0, totalQ - correctQ);
+  } else if (diagnosticScore !== null) {
+    errorCount = Math.max(0, Math.round(5 * (1 - diagnosticScore)));
+  }
+
+  const isSingleMistake = (errorCount === 1);
+  const confidence = errorCount === 0 ? 'none' : (isSingleMistake ? 'suspected' : 'confirmed');
+  const isConfirmed = !isSingleMistake && errorCount > 0;
+
+  // Extract and analyze misconceptions
+  const identifiedMisconceptions = [];
+  try {
+    let answersToCheck = options.answers;
+    if (!answersToCheck && recentAttempt && recentAttempt.questions_json && recentAttempt.answers_json) {
+      const qIds = JSON.parse(recentAttempt.questions_json);
+      const aOpts = JSON.parse(recentAttempt.answers_json);
+      answersToCheck = qIds.map((qId, i) => ({ questionId: qId, selectedOption: aOpts[i] }));
+    }
+    if (Array.isArray(answersToCheck)) {
+      const qList = questions[failedNodeId] || [];
+      for (const ans of answersToCheck) {
+        const q = qList.find(item => item.id === ans.questionId);
+        if (q && q.answer !== ans.selectedOption) {
+          identifiedMisconceptions.push(analyzeMisconception(ans.questionId, ans.selectedOption, failedNodeId));
+        }
+      }
+    }
+  } catch (_) {}
+
+  const evidenceRationale = isSingleMistake
+    ? 'Single mistake observed (1 error). This may be a careless computational slip or isolated difficulty. The system categorizes this gap as SUSPECTED/TENTATIVE and avoids declaring a confirmed weakness without further corroboration.'
+    : (errorCount >= 2
+      ? `Confirmed learning deficit based on ${errorCount} corroborated errors indicating an underlying foundational gap.`
+      : 'All items answered correctly.');
+
   const diagnosticEvidence = {
     nodeId: failedNodeId,
     nodeLabel: targetNode.label,
     classLevel: targetNode.class,
-    status: targetMastery?.status || (diagnosticScore !== null && diagnosticScore < 0.7 ? 'gap_found' : 'not_started'),
+    status: isSingleMistake
+      ? 'suspected_gap'
+      : (targetMastery?.status || (diagnosticScore !== null && diagnosticScore < 0.7 ? 'gap_found' : 'not_started')),
     score: diagnosticScore,
     percentage: diagnosticScore !== null ? Math.round(diagnosticScore * 100) : null,
     passed: diagnosticScore !== null ? diagnosticScore >= 0.7 : false,
     attempts: targetMastery?.attempts || (recentAttempt ? 1 : 0),
     correctAnswers: recentAttempt?.correct_answers ?? (diagnosticScore !== null ? Math.round(diagnosticScore * 5) : null),
-    totalQuestions: recentAttempt?.total_questions ?? (diagnosticScore !== null ? 5 : null)
+    totalQuestions: recentAttempt?.total_questions ?? (diagnosticScore !== null ? 5 : null),
+    errorCount,
+    confidence,
+    isConfirmed,
+    evidenceRationale,
+    identifiedMisconceptions
   };
 
   // BFS backward through prerequisites
@@ -145,10 +206,18 @@ export function traceGap(studentId, failedNodeId) {
     diagnosticEvidence,
     rootGaps: rootGaps.map(id => {
       const node = getNode(id);
+      const whyIdentified = isSingleMistake
+        ? `Tentatively suspected from single mistake on ${targetNode.label}; builds upon ${node?.label || id} (Grade ${node?.class || 6}). Additional diagnostic evidence required before confirmation.`
+        : `Confirmed root gap: ${errorCount} errors in ${targetNode.label} trace directly backward through the NCERT prerequisite graph to foundational deficits in ${node?.label || id} (Grade ${node?.class || 6}).`;
+
       return {
         ...node,
         mastery: masteryMap[id] || { status: 'not_started', diagnostic_score: null },
-        rationale: CURRICULAR_RATIONALE[id] || node?.description || ''
+        rationale: CURRICULAR_RATIONALE[id] || node?.description || '',
+        confidence,
+        isConfirmed,
+        status: isSingleMistake ? 'suspected_gap' : (masteryMap[id]?.status || 'gap_found'),
+        whyIdentified
       };
     }),
     allGaps: allGaps.map(id => {
@@ -156,7 +225,9 @@ export function traceGap(studentId, failedNodeId) {
       return {
         ...node,
         mastery: masteryMap[id] || { status: 'not_started', diagnostic_score: null },
-        rationale: CURRICULAR_RATIONALE[id] || node?.description || ''
+        rationale: CURRICULAR_RATIONALE[id] || node?.description || '',
+        confidence,
+        isConfirmed
       };
     }),
     traceTree,
@@ -322,7 +393,159 @@ export function getClassGapSummary(classroomId) {
     summary.push(studentSummary);
   }
 
-  return { students: summary, nodes: allNodes };
+  // Calculate total real assessment attempts for this classroom
+  let totalAssessmentAttempts = 0;
+  try {
+    const studentIds = new Set(students.map(s => s.id));
+    if (studentIds.size > 0) {
+      const allAttempts = db.prepare('SELECT student_id FROM quiz_attempts').all();
+      totalAssessmentAttempts = allAttempts.filter(a => studentIds.has(a.student_id)).length;
+    }
+  } catch (_) {}
+
+  // Compute priority support recommendations for students with active learning gaps
+  const prioritySupportStudents = [];
+  for (const s of summary) {
+    if (s.gapFound > 0) {
+      const gapEntries = Object.entries(s.nodeStatuses)
+        .filter(([_, stat]) => stat.status === 'gap_found')
+        .sort((a, b) => {
+          const classA = getNode(a[0])?.class || 0;
+          const classB = getNode(b[0])?.class || 0;
+          return classB - classA; // Highest class first
+        });
+
+      if (gapEntries.length > 0) {
+        const primaryGapId = gapEntries[0][0];
+        const primaryNode = getNode(primaryGapId);
+
+        let rootCauseLabel = primaryNode?.label || primaryGapId;
+        let rootCauseClass = primaryNode?.class || 6;
+        let rootCauseId = primaryGapId;
+        try {
+          const t = traceGap(s.id, primaryGapId);
+          if (t && t.rootGaps && t.rootGaps.length > 0) {
+            rootCauseLabel = t.rootGaps[0].label;
+            rootCauseClass = t.rootGaps[0].class;
+            rootCauseId = t.rootGaps[0].id;
+          }
+        } catch (_) {}
+
+        prioritySupportStudents.push({
+          studentId: s.id,
+          studentName: s.name,
+          rollNumber: s.rollNumber,
+          gapCount: s.gapFound,
+          primaryGapId,
+          primaryGapTopic: primaryNode?.label || primaryGapId,
+          primaryGapClass: primaryNode?.class || 6,
+          rootCauseId,
+          rootCausePrerequisite: rootCauseLabel,
+          rootCauseClass,
+          recommendedIntervention: `Assign Remedial Step: ${rootCauseLabel} (Grade ${rootCauseClass})`
+        });
+      }
+    }
+  }
+
+  // Sort priority support students by highest gap count first
+  prioritySupportStudents.sort((a, b) => b.gapCount - a.gapCount);
+
+  // Compute topic-level class statistics
+  const topicStats = {};
+  for (const node of allNodes) {
+    let masteredCount = 0;
+    let gapCount = 0;
+    for (const s of summary) {
+      const st = s.nodeStatuses[node.id]?.status;
+      if (st === 'mastered') masteredCount++;
+      else if (st === 'gap_found') gapCount++;
+    }
+    topicStats[node.id] = {
+      masteredCount,
+      gapCount,
+      totalAssessed: masteredCount + gapCount
+    };
+  }
+
+  return {
+    students: summary,
+    nodes: allNodes,
+    totalAssessmentAttempts,
+    prioritySupportStudents,
+    topicStats
+  };
 }
 
-export default { traceGap, getClassGapSummary };
+/**
+ * Deterministically analyzes student answers for misconceptions and traces to root prerequisite gaps.
+ */
+export function analyzeMisconception(questionId, selectedOption, targetNodeId = null) {
+  let q = null;
+  let resolvedNodeId = targetNodeId;
+  if (targetNodeId && questions[targetNodeId]) {
+    q = questions[targetNodeId].find(item => item.id === questionId);
+  }
+  if (!q) {
+    for (const [nId, qList] of Object.entries(questions)) {
+      const match = qList.find(item => item.id === questionId);
+      if (match) {
+        q = match;
+        resolvedNodeId = nId;
+        break;
+      }
+    }
+  }
+  return analyzeQuestionMisconception(q, selectedOption, resolvedNodeId);
+}
+
+/**
+ * Trace root gap directly from a set of student answers with explicit misconception corroboration
+ * and ambiguous single-mistake protection.
+ */
+export function traceRootGapFromMisconceptions(studentId, targetNodeId, answers = []) {
+  const incorrectAnswers = (answers || []).filter(a => {
+    if (typeof a.isCorrect === 'boolean') return !a.isCorrect;
+    const qList = questions[targetNodeId] || [];
+    const q = qList.find(item => item.id === a.questionId);
+    return q ? q.answer !== a.selectedOption : true;
+  });
+
+  const misconceptions = incorrectAnswers.map(ans => {
+    return analyzeMisconception(ans.questionId, ans.selectedOption, targetNodeId);
+  });
+
+  const errorCount = incorrectAnswers.length;
+  const isAmbiguousSingleMistake = (errorCount === 1);
+  const confidence = errorCount === 0 ? 'none' : (isAmbiguousSingleMistake ? 'suspected' : 'confirmed');
+
+  const trace = traceGap(studentId, targetNodeId, { errorCount, answers });
+
+  const primaryMisconception = misconceptions[0] || null;
+  let gapExplanation = '';
+  if (isAmbiguousSingleMistake) {
+    gapExplanation = `Single mistake detected: "${primaryMisconception ? primaryMisconception.misconception : 'Unconfirmed computational error'}". Because only 1 ambiguous error was observed, this is classified as a SUSPECTED gap. An adaptive probe is recommended before assigning remediation.`;
+  } else if (errorCount >= 2) {
+    const labels = misconceptions.map(m => m.label).slice(0, 2).join(', ');
+    gapExplanation = `Corroborated by ${errorCount} errors displaying recurring misconceptions (${labels}). Traces backward through NCERT prerequisite dependencies to foundational deficits in ${trace.rootGaps.map(g => g.label).join(' & ')}.`;
+  } else {
+    gapExplanation = 'No learning gap detected; all evaluated responses demonstrate mastery.';
+  }
+
+  return {
+    ...trace,
+    errorCount,
+    confidence,
+    isConfirmed: !isAmbiguousSingleMistake && errorCount > 0,
+    primaryMisconception,
+    allMisconceptions: misconceptions,
+    gapExplanation
+  };
+}
+
+export default {
+  traceGap,
+  getClassGapSummary,
+  analyzeMisconception,
+  traceRootGapFromMisconceptions
+};

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "scene1",
+    "text": "In every classroom, students learn at different speeds. Sometimes, a student struggles with a new concept not because they cannot learn it, but because an earlier foundation is missing. Teachers need to find that gap before it grows."
+  },
+  {
+    "id": "scene2",
+    "text": "Meet KakshaSignal, a teacher-led adaptive learning system built to make learning gaps visible, recommend the next best learning step, and keep teachers in control."
+  },
+  {
+    "id": "scene3",
+    "text": "Sneha is struggling with Class 8 Rational Numbers. Instead of simply marking her answer wrong, KakshaSignal traces the stored prerequisite relationships to identify an earlier concept that needs attention: Class 6 Fractions."
+  },
+  {
+    "id": "scene4",
+    "text": "Students then follow a structured Learn, Solve, Test cycle. They study the concept, practise with immediate feedback, and complete an assessment. Where supported, a parallel reassessment checks progress with different questions. The resulting score updates the recorded mastery state and informs the next step."
+  },
+  {
+    "id": "scene5",
+    "text": "KakshaSignal does not replace the teacher. It gives educators explainable evidence, an overview of classroom needs, and control to assign, verify, or reset a learning intervention."
+  },
+  {
+    "id": "scene6",
+    "text": "Built with Indian classroom constraints in mind, KakshaSignal offers selected Hindi interface translations, reduced visual effects in low-bandwidth mode, and static-shell caching. Assessment and grading still require an active backend connection."
+  },
+  {
+    "id": "scene7",
+    "text": "Under the interface, a deterministic prerequisite graph makes the recommendation path inspectable. Our current prototype focuses on middle-school mathematics across Classes 6 to 8, with a clear foundation for future expansion. KakshaSignal helps teachers identify the gap, adapt the next step, and keep every learner moving forward."
+  }
+]

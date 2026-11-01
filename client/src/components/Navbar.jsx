@@ -2,9 +2,33 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 
+const LANG_OPTIONS = [
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'hi', label: 'हिन्दी', flag: '🇮🇳' },
+  { code: 'gu', label: 'ગુજરાતી', flag: '🇮🇳' }
+];
+
 export default function Navbar() {
-  const { user, activeClassroom, setActiveClassroom, lang, setLang, lowBandwidth, setLowBandwidth, savedBytes, logout, t } = useApp();
+  const {
+    user, activeClassroom, setActiveClassroom,
+    lang, setLang,
+    lowBandwidth, setLowBandwidth, savedBytes,
+    isOnline, offlineQueue, syncOfflineQueue, isSyncing, syncStatusMsg,
+    logout, t
+  } = useApp();
   const navigate = useNavigate();
+
+  const pendingCount = (offlineQueue || []).filter(
+    item => item.status === 'pending' || !item.serverVerified
+  ).length;
+
+  const cycleLang = () => {
+    const idx = LANG_OPTIONS.findIndex(l => l.code === lang);
+    const next = LANG_OPTIONS[(idx + 1) % LANG_OPTIONS.length];
+    setLang(next.code);
+  };
+
+  const currentLangOption = LANG_OPTIONS.find(l => l.code === lang) || LANG_OPTIONS[0];
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-40 transition-colors">
@@ -33,6 +57,49 @@ export default function Navbar() {
 
           {/* Right Controls */}
           <div className="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
+
+            {/* Connectivity / Offline Badge */}
+            <div className="flex items-center space-x-1">
+              <span
+                className={`inline-flex items-center space-x-1 px-2 py-1 rounded-lg text-[11px] sm:text-xs font-bold border transition whitespace-nowrap shrink-0 ${
+                  isOnline
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                    : 'bg-rose-50 border-rose-300 text-rose-700 animate-pulse'
+                }`}
+                title={isOnline ? 'Connected to school server' : 'Network unavailable — working offline from cache'}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isOnline ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+                <span>{isOnline ? t('onlineMode') : t('offlineMode')}</span>
+              </span>
+
+              {/* Pending Sync Counter */}
+              {pendingCount > 0 && (
+                <button
+                  onClick={() => {
+                    if (isOnline && !isSyncing) syncOfflineQueue();
+                  }}
+                  disabled={isSyncing || !isOnline}
+                  className={`inline-flex items-center space-x-1 px-2 py-1 rounded-lg text-[11px] sm:text-xs font-bold border transition whitespace-nowrap shrink-0 ${
+                    isSyncing
+                      ? 'bg-blue-50 border-blue-300 text-blue-700 cursor-wait'
+                      : isOnline
+                        ? 'bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100 cursor-pointer'
+                        : 'bg-slate-50 border-slate-200 text-slate-500 cursor-not-allowed'
+                  }`}
+                  title={isSyncing ? t('syncing') : `${pendingCount} attempt(s) pending server verification`}
+                >
+                  <span>{isSyncing ? '⏳' : '🔄'}</span>
+                  <span>{isSyncing ? t('syncing') : `${pendingCount} ${t('pendingSync')}`}</span>
+                </button>
+              )}
+            </div>
+
+            {/* Sync Success Toast */}
+            {syncStatusMsg && (
+              <span className="hidden sm:inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 animate-pulse whitespace-nowrap">
+                ✅ {syncStatusMsg}
+              </span>
+            )}
             
             {/* Low-connectivity toggle */}
             <button
@@ -53,13 +120,13 @@ export default function Navbar() {
               )}
             </button>
 
-            {/* Language Toggle (EN / HI) */}
+            {/* Language Toggle (EN / HI / GU) */}
             <button
-              onClick={() => setLang(lang === 'en' ? 'hi' : 'en')}
+              onClick={cycleLang}
               className="px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-bold border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition whitespace-nowrap shrink-0"
-              title="Toggle English / Hindi (द्विभाषी)"
+              title="Cycle language: English → हिन्दी → ગુજરાતી"
             >
-              {lang === 'en' ? '🇮🇳 हिन्दी' : '🇬🇧 English'}
+              {currentLangOption.flag} {currentLangOption.label}
             </button>
 
             {/* Teacher Classroom Switcher */}
