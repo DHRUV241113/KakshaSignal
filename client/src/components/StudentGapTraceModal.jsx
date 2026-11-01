@@ -61,31 +61,32 @@ export default function StudentGapTraceModal({ student, gapNode, traceData, onCl
   const recommendedPath = traceData?.recommendedPath || [];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4">
+      <div className="bg-white rounded-2xl sm:rounded-3xl max-w-3xl w-full max-h-[94vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Modal Header */}
-        <div className="bg-slate-900 text-white p-5 flex items-center justify-between">
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-rose-500 text-white uppercase tracking-wider">
+        <div className="bg-slate-900 text-white p-4 sm:p-5 flex items-start sm:items-center justify-between gap-2 shrink-0">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <span className="px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-bold bg-rose-500 text-white uppercase tracking-wider">
                 Gap Trace Diagnosis
               </span>
-              <span className="text-xs text-slate-400">Explainable Backward Root-Cause Analysis</span>
+              <span className="text-[11px] text-slate-400">Explainable Backward Root-Cause Analysis</span>
             </div>
-            <h2 className="text-xl font-bold mt-1">
+            <h2 className="text-base sm:text-xl font-bold mt-1 break-words">
               {student.name} — <span className="text-emerald-400">{gapNode.label}</span> (Grade {gapNode.class})
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white rounded-lg p-1.5 transition hover:bg-slate-800"
+            className="text-slate-400 hover:text-white rounded-xl p-2 transition hover:bg-slate-800 min-h-[40px] min-w-[40px] flex items-center justify-center shrink-0"
+            aria-label="Close dialog"
           >
             ✕
           </button>
         </div>
 
-        <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
 
           {/* Diagnostic Assessment Evidence */}
           {traceData?.diagnosticEvidence && (
@@ -397,11 +398,11 @@ export default function StudentGapTraceModal({ student, gapNode, traceData, onCl
               </div>
             )}
 
-            <div className="mt-5 flex items-center justify-end space-x-3">
+            <div className="mt-5 flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 min-h-[44px] flex items-center justify-center"
               >
                 Cancel
               </button>
@@ -409,7 +410,7 @@ export default function StudentGapTraceModal({ student, gapNode, traceData, onCl
                 type="button"
                 onClick={handleExecuteAction}
                 disabled={loading}
-                className="px-5 py-2 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow transition disabled:opacity-50"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] shadow transition disabled:opacity-50 min-h-[44px] flex items-center justify-center"
               >
                 {loading ? 'Executing...' : 'Apply Teacher Intervention'}
               </button>

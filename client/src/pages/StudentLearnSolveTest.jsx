@@ -399,16 +399,16 @@ export default function StudentLearnSolveTest() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       
       {/* Navigation & Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <button
           onClick={() => navigate('/student')}
-          className="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition"
+          className="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 transition py-1.5 px-2 rounded-lg hover:bg-slate-100"
         >
           <span>← Back to Learning Space</span>
         </button>
 
         <div className="flex items-center space-x-2">
-          <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+          <span className={`px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold ${
             node?.class === 6
               ? 'bg-sky-100 text-sky-800'
               : node?.class === 7
@@ -417,74 +417,74 @@ export default function StudentLearnSolveTest() {
           }`}>
             Grade {node?.class} • Chapter {node?.chapter}
           </span>
-          <span className="text-xs font-semibold text-slate-500">
+          <span className="text-[11px] sm:text-xs font-semibold text-slate-500">
             CBSE / NCERT Strand
           </span>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-7 md:p-8 shadow-sm">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-tight">
           {node?.label}
         </h1>
-        <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl">
+        <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
           {node?.description}
         </p>
 
-        {/* 3-Stage Progress Nav Tabs */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-6 border-t border-slate-100 pt-6">
+        {/* 3-Stage Progress Nav Tabs — Mobile Friendly */}
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-4 mt-5 border-t border-slate-100 pt-5">
           <button
             onClick={() => setActiveTab('learn')}
-            className={`py-3 px-3 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center space-x-2 transition ${
+            className={`py-2.5 sm:py-3 px-2 sm:px-3 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs md:text-sm font-extrabold flex items-center justify-center space-x-1 sm:space-x-2 transition min-h-[44px] ${
               activeTab === 'learn'
                 ? 'bg-blue-600 text-white shadow-md'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            <span>1. 📖</span>
-            <span className="uppercase">{t('learn')}</span>
+            <span>📖</span>
+            <span className="uppercase truncate">{t('learn')}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('solve')}
-            className={`py-3 px-3 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center space-x-2 transition ${
+            className={`py-2.5 sm:py-3 px-2 sm:px-3 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs md:text-sm font-extrabold flex items-center justify-center space-x-1 sm:space-x-2 transition min-h-[44px] ${
               activeTab === 'solve'
                 ? 'bg-amber-500 text-white shadow-md'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            <span>2. ✏️</span>
-            <span className="uppercase">{t('solve')}</span>
+            <span>✏️</span>
+            <span className="uppercase truncate">{t('solve')}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('test')}
-            className={`py-3 px-3 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center justify-center space-x-2 transition ${
+            className={`py-2.5 sm:py-3 px-2 sm:px-3 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs md:text-sm font-extrabold flex items-center justify-center space-x-1 sm:space-x-2 transition min-h-[44px] ${
               activeTab === 'test'
                 ? 'bg-emerald-600 text-white shadow-md'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            <span>3. 🎯</span>
-            <span className="uppercase">{t('test')}</span>
+            <span>🎯</span>
+            <span className="uppercase truncate">{t('test')}</span>
           </button>
         </div>
 
         {/* Current Active Stage Description */}
-        <div className="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+        <div className="mt-3.5 p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col xs:flex-row xs:items-center justify-between gap-1 text-xs">
           <div>
             <span className="font-bold text-slate-800">
               {activeTab === 'learn' && t('stageLearnTitle')}
               {activeTab === 'solve' && t('stageSolveTitle')}
               {activeTab === 'test' && t('stageTestTitle')}
             </span>
-            <p className="text-[11px] text-slate-500 mt-0.5">
+            <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
               {activeTab === 'learn' && t('stageLearnDesc')}
               {activeTab === 'solve' && t('stageSolveDesc')}
               {activeTab === 'test' && t('stageTestDesc')}
             </p>
           </div>
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 shrink-0">
             Stage {activeTab === 'learn' ? '1/3' : activeTab === 'solve' ? '2/3' : '3/3'}
           </span>
         </div>
@@ -614,8 +614,8 @@ export default function StudentLearnSolveTest() {
                       {q.text}
                     </p>
 
-                    {/* Options */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+                    {/* Options — Mobile-First Touch Targets (min 48px) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 pt-2">
                       {q.options.map((opt, oIdx) => {
                         const isOptionSelected = selected === oIdx;
 
@@ -623,16 +623,16 @@ export default function StudentLearnSolveTest() {
                           <button
                             key={oIdx}
                             onClick={() => handlePracticeSelect(q.id, oIdx, opt)}
-                            className={`p-3 rounded-xl border text-xs font-medium text-left transition ${
+                            className={`p-3.5 rounded-xl border text-xs font-semibold text-left transition min-h-[48px] active:scale-[0.99] flex items-center ${
                               isOptionSelected
-                                ? 'bg-amber-500 text-white border-amber-600 font-bold shadow-sm'
+                                ? 'bg-amber-500 text-white border-amber-600 shadow-sm'
                                 : 'bg-white border-slate-200 text-slate-800 hover:bg-slate-100'
                             }`}
                           >
-                            <span className="font-mono mr-2 font-bold opacity-60">
+                            <span className="font-mono mr-2 font-bold opacity-60 shrink-0">
                               {String.fromCharCode(65 + oIdx)}.
                             </span>
-                            {opt}
+                            <span className="break-words">{opt}</span>
                           </button>
                         );
                       })}
@@ -659,21 +659,21 @@ export default function StudentLearnSolveTest() {
                       </div>
                     )}
 
-                    {/* PROGRESSIVE HINTS DRAWER */}
+                    {/* PROGRESSIVE HINTS DRAWER — Mobile Responsive */}
                     <div className="pt-3 border-t border-slate-200/60 space-y-2.5">
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1.5">
                           <span>💡 Progressive Hint System</span>
-                          <span className="text-[10px] font-mono px-1.5 py-0.2 bg-slate-200 rounded text-slate-600">
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 bg-slate-200 rounded text-slate-600 font-bold">
                             {qHints.level}/3 Used
                           </span>
                         </span>
 
-                        <div className="flex items-center space-x-2">
+                        <div className="flex flex-wrap items-center gap-1.5">
                           {qHints.level < 3 && (
                             <button
                               onClick={() => handleRequestHint(q.id)}
-                              className="px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 transition flex items-center space-x-1"
+                              className="px-3 py-1.5 text-xs font-bold rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 transition flex items-center space-x-1 min-h-[38px] active:scale-[0.98]"
                             >
                               <span>💡</span>
                               <span>
@@ -685,9 +685,9 @@ export default function StudentLearnSolveTest() {
                           {(qHints.isFullSolutionAvailable || selected !== undefined) && (
                             <button
                               onClick={() => handleToggleSolution(q.id)}
-                              className="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-100 hover:bg-indigo-200 text-indigo-900 transition"
+                              className="px-3 py-1.5 text-xs font-bold rounded-xl bg-indigo-100 hover:bg-indigo-200 text-indigo-900 transition min-h-[38px] active:scale-[0.98]"
                             >
-                              {qHints.showSolution ? 'Hide Full Solution' : 'View Full Solution & Explanation'}
+                              {qHints.showSolution ? 'Hide Solution' : 'View Full Solution & Explanation'}
                             </button>
                           )}
                         </div>
@@ -1054,7 +1054,7 @@ export default function StudentLearnSolveTest() {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center">
+                  <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 text-center">
                     <div className="p-3 bg-white rounded-xl border border-slate-200">
                       <div className="text-[10px] text-slate-400 font-bold uppercase">{t('beforeScore')}</div>
                       <div className="text-lg font-black text-rose-600 mt-0.5">
@@ -1073,7 +1073,7 @@ export default function StudentLearnSolveTest() {
                       <div className="text-[10px] text-slate-400">Post-Remediation</div>
                     </div>
 
-                    <div className="p-3 bg-white rounded-xl border border-slate-200 col-span-2 sm:col-span-1">
+                    <div className="p-3 bg-white rounded-xl border border-slate-200 col-span-1 xs:col-span-2 sm:col-span-1">
                       <div className="text-[10px] text-slate-400 font-bold uppercase">Delta</div>
                       <div className="text-lg font-black text-purple-700 mt-0.5">
                         {testResult.reassessment.scoreDelta !== null && testResult.reassessment.scoreDelta >= 0
@@ -1379,7 +1379,7 @@ export default function StudentLearnSolveTest() {
                     {q.text}
                   </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 pt-2">
                     {q.options.map((opt, oIdx) => {
                       const isSelected = testAnswers[q.id] === oIdx;
 
@@ -1387,16 +1387,16 @@ export default function StudentLearnSolveTest() {
                         <button
                           key={oIdx}
                           onClick={() => setTestAnswers(prev => ({ ...prev, [q.id]: oIdx }))}
-                          className={`p-3 rounded-xl border text-xs font-medium text-left transition ${
+                          className={`p-3.5 rounded-xl border text-xs font-semibold text-left transition min-h-[48px] active:scale-[0.99] flex items-center ${
                             isSelected
-                              ? 'bg-emerald-600 text-white border-emerald-700 font-bold shadow-sm'
+                              ? 'bg-emerald-600 text-white border-emerald-700 shadow-sm'
                               : 'bg-slate-50 border-slate-200 text-slate-800 hover:bg-slate-100'
                           }`}
                         >
-                          <span className="font-mono mr-2 font-bold opacity-60">
+                          <span className="font-mono mr-2 font-bold opacity-60 shrink-0">
                             {String.fromCharCode(65 + oIdx)}.
                           </span>
-                          {opt}
+                          <span className="break-words">{opt}</span>
                         </button>
                       );
                     })}
@@ -1404,7 +1404,7 @@ export default function StudentLearnSolveTest() {
                 </div>
               ))}
 
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-100">
                 <span className="text-xs text-slate-500">
                   Answered: <strong>{Object.keys(testAnswers).length}</strong> of {testQuiz?.questions?.length || 5}
                 </span>
@@ -1412,7 +1412,7 @@ export default function StudentLearnSolveTest() {
                 <button
                   onClick={handleTestSubmit}
                   disabled={submittingTest || Object.keys(testAnswers).length < (testQuiz?.questions?.length || 5)}
-                  className="py-3 px-8 rounded-xl font-bold text-sm text-white bg-emerald-600 hover:bg-emerald-700 shadow-md transition disabled:opacity-40"
+                  className="w-full sm:w-auto py-3.5 px-8 rounded-xl font-bold text-sm text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] shadow-md transition disabled:opacity-40 min-h-[48px] flex items-center justify-center"
                 >
                   {submittingTest ? 'Grading...' : 'Submit Assessment →'}
                 </button>

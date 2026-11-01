@@ -3,9 +3,33 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply text-slate-800 bg-slate-50 selection:bg-emerald-100 selection:text-emerald-900;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Prevent iOS Safari from zooming in on input focus */
+  @media screen and (max-width: 768px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
+
+  button, a, select, input {
+    touch-action: manipulation;
   }
 }
 
@@ -13,10 +37,19 @@
   font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', sans-serif;
 }
 
+/* Hide scrollbars while allowing swipe */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Custom scrollbars for data tables and graph panels */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: #f1f5f9;
@@ -27,6 +60,11 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Safe area padding helper for modern mobile devices */
+.safe-pb {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
 /* Low-bandwidth optimizations: eliminate heavy animations, backdrop blurs, and transitions */
@@ -54,4 +92,3 @@ body[data-low-bandwidth="true"] .shadow-2xl {
 body[data-low-bandwidth="true"] .low-bandwidth-hide {
   display: none !important;
 }
-

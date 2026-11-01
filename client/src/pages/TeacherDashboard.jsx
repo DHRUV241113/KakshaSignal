@@ -343,6 +343,12 @@ export default function TeacherDashboard() {
             </div>
           </div>
 
+          {/* Mobile Swipe Cue */}
+          <div className="px-3.5 py-2 bg-amber-50/90 border-b border-amber-200 text-[11px] font-bold text-amber-900 flex items-center justify-between sm:hidden">
+            <span>👉 Swipe table to view all competencies</span>
+            <span className="text-[10px] bg-amber-200 px-1.5 py-0.5 rounded font-mono">Horizontal Scroll</span>
+          </div>
+
           {/* Matrix Grid */}
           <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
             <table className="min-w-full divide-y divide-slate-200 text-left border-collapse">

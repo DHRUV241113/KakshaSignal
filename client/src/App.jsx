@@ -64,7 +64,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+      <footer className="bg-white border-t border-slate-200 py-5 sm:py-6 safe-pb text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div>
             <strong>Curriculum Continuity Pass (CCP)</strong> • Code Kernel ’26 National Engineering Hackathon
