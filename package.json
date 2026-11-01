@@ -9,5 +9,8 @@
     "build:client": "cd client && npx vite build",
     "seed": "cd server && node db/seed.js",
     "start": "cd server && node index.js"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.16.0"
   }
 }
