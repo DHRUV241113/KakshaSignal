@@ -40,6 +40,10 @@ if (process.env.ALLOWED_ORIGINS) {
 
 const allowedOriginsSet = new Set([...defaultOrigins, ...envOrigins]);
 
+// Serve static client build if it exists (always accessible for browser asset loading)
+const clientBuildPath = join(__dirname, '..', 'client', 'dist');
+app.use(express.static(clientBuildPath));
+
 const corsOptions = {
   origin: (origin, callback) => {
     // Allow non-browser agents (curl, server-to-server, test scripts) where origin is undefined
@@ -55,14 +59,25 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'x-teacher-token', 'x-student-token', 'x-teacher-code']
 };
 
-app.use(cors(corsOptions));
+// CORS middleware: allow explicit allowlist and direct same-origin browser visits
+app.use((req, res, next) => {
+  const host = req.headers.host;
+  const origin = req.headers.origin;
+  if (origin && host && (origin === `https://${host}` || origin === `http://${host}`)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    if (req.method === 'OPTIONS') {
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-teacher-token, x-student-token, x-teacher-code');
+      return res.sendStatus(204);
+    }
+    return next();
+  }
+  cors(corsOptions)(req, res, next);
+});
 
 // --- SEC-04: Explicit Request Body Size Limit (64 KB) ---
 app.use(express.json({ limit: '64kb' }));
-
-// Serve static client build if it exists
-const clientBuildPath = join(__dirname, '..', 'client', 'dist');
-app.use(express.static(clientBuildPath));
 
 // API Routes
 app.use('/api/auth', authRoutes);
